@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BYTE PLAY</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+body, html {
+    margin:0; padding:0; font-family:'Press Start 2P', monospace;
+    background:#f5e4d0; display:flex; flex-direction:column; align-items:center;
+}
+h1{
+    text-align:center; font-size:48px; margin-top:50px; margin-bottom:10rem; /* 10rem ~10cm spacing */
+    color:#222; text-shadow:3px 3px #888;
+    cursor:pointer; transition:0.3s all;
+}
+h1:hover{
+    color:#003366; transform:scale(1.05) rotate(-1deg);
+}
+#gamesContainer{
+    display:grid;
+    grid-template-columns: repeat(2, auto);
+    grid-gap:30px 30px;
+    justify-content:center;
+    align-items:center;
+}
+.game-card{
+    cursor:pointer; transition:0.3s all;
+}
+.game-card img{
+    width:380px; /* slightly bigger than 327px */
+    height:140px; /* maintain ratio */
+    object-fit:cover;
+    border:3px solid #000; 
+    box-shadow:3px 3px 10px rgba(0,0,0,0.7);
+    transition:0.3s all;
+}
+.game-card:hover img{
+    transform:scale(1.05) rotate(-0.5deg);
+}
+</style>
+</head>
+<body>
+<h1 id="mainTitle">BYTE PLAY</h1>
+
+<div id="gamesContainer">
+    <div class="game-card" onclick="location.href='trillionaire.html'">
+        <img src="c:\Users\win10\Desktop\BytePlay\IMAGES\20250819_121134.jpg" alt="Trillionaire Game">
+    </div>
+    <div class="game-card" onclick="location.href='deadred.html'">
+        <img src="c:\Users\win10\Desktop\BytePlay\IMAGES\Screenshot_2025-08-19-12-48-21-773_com.lemon.lvoverseas-edit.jpg" alt="Dead Red Game">
+    </div>
+    <div class="game-card" onclick="location.href='gtn.html'">
+        <img src="c:\Users\win10\Desktop\BytePlay\IMAGES\20250819_192331.jpg" alt="Guess the Number Game">
+    </div>
+    <div class="game-card" onclick="location.href='sr.html'">
+        <img src="c:\Users\win10\Desktop\BytePlay\IMAGES\20250819_154500.jpg" alt="Speed Reaction Game">
+    </div>
+    <div class="game-card" onclick="location.href='ws.html'">
+        <img src="c:\Users\win10\Desktop\BytePlay\IMAGES\TYPING.png" alt="Typing Challenge Game">
+    </div>
+    <div class="game-card" onclick="location.href='30sec.html'">
+        <img src="c:\Users\win10\Desktop\BytePlay\IMAGES\20250819_172604.jpg" alt="30 Second Riddle Game">
+    </div>
+    <div class="game-card" onclick="location.href='mq.html'">
+        <img src="c:\Users\win10\Desktop\BytePlay\IMAGES\20250819_191652.jpg" alt="Math Quiz Game">
+    </div>
+</div>
+
+<script>
+// Interactive main title
+const mainTitle = document.getElementById('mainTitle');
+mainTitle.addEventListener('click', ()=>{
+    const colors = ['#003366','#660000','#006600','#660066','#000066','#666600'];
+    mainTitle.style.color = colors[Math.floor(Math.random()*colors.length)];
+    const randDeg = Math.floor(Math.random()*10)-5;
+    const randScale = 1 + Math.random()*0.2;
+    mainTitle.style.transform = `scale(${randScale}) rotate(${randDeg}deg)`;
+    // Retro sound effect
+    const ctx = new AudioContext();
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.type='square'; o.frequency.value=200+Math.random()*300; g.gain.setValueAtTime(0.1,ctx.currentTime);
+    o.start(); o.stop(ctx.currentTime+0.2);
+});
+</script>
+</body>
+</html>
