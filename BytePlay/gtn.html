@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Guess The Number — Improved</title>
+  <style>
+    :root {
+      --bg: #fff;
+      --accent: #c82323;
+      --accent-dark: #a01b1b;
+      --text-primary: #111827;
+      --text-muted: #666;
+      --block-bg: linear-gradient(180deg, #e7e9ec, #cfcfd2);
+      --block-shadow: 0 12px 40px rgba(2,6,23,0.08);
+      --input-bg: #fff;
+      --input-border: #bbb;
+      --btn-bg: var(--accent);
+      --btn-hover: var(--accent-dark);
+      --btn-color: #fff;
+      --message-error: #c82323;
+      --message-success: #198754;
+    }
+
+    /* Reset */
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+    body, html {
+      margin: 0; padding: 0;
+      height: 100%;
+      background: var(--bg);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: var(--text-primary);
+      display: flex;
+      justify-content: center;
+      align-items: flex-start; /* changed to flex-start so margin-top works */
+      padding: 20px;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      user-select: none;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 580px;
+      width: 100%;
+      text-align: center;
+    }
+
+    h1 {
+      margin-top: 48px;  /* Increased margin top */
+      font-weight: 900;
+      font-size: 3rem;
+      letter-spacing: 0.06em;
+      margin-bottom: 8px;
+      color: var(--accent);
+      text-shadow: 1px 1px 4px rgba(200,40,40,0.3);
+      user-select: text;
+    }
+    p.instructions {
+      font-weight: 600;
+      font-size: 1.15rem;
+      margin: 0 0 24px 0;
+      color: var(--text-muted);
+      user-select: text;
+    }
+
+    .plate {
+      margin: 0 auto 30px auto;
+      width: 340px;
+      height: 240px;
+      background: var(--block-bg);
+      border-radius: 18px;
+      box-shadow:
+        inset 0 12px 26px rgba(255,255,255,0.8),
+        var(--block-shadow);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: default;
+      user-select:none;
+    }
+
+    .half {
+      position: absolute;
+      top: 0;
+      width: 50%;
+      height: 100%;
+      background: var(--block-bg);
+      box-shadow:
+        inset 0 12px 26px rgba(255,255,255,0.8),
+        var(--block-shadow);
+      border-radius: 18px;
+      transition: transform 0.75s cubic-bezier(0.19, 1, 0.22, 1);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-weight: 900;
+      font-size: 6rem;
+      color: #555;
+      pointer-events: none;
+      user-select: none;
+      text-shadow: 0 0 2px rgba(0,0,0,0.12);
+      user-select:none;
+      -webkit-user-select:none;
+    }
+    .half.left {
+      left: 0;
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+    }
+    .half.right {
+      right: 0;
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+    }
+
+    .half .mark {
+      user-select: none;
+    }
+
+    .plate.open .half.left {
+      transform: translateX(-110%);
+    }
+    .plate.open .half.right {
+      transform: translateX(110%);
+    }
+
+    .reveal-num {
+      position: absolute;
+      font-size: 7rem;
+      font-weight: 900;
+      color: var(--accent);
+      pointer-events: none;
+      user-select: none;
+      opacity: 0;
+      transform: scale(0.9);
+      transition: opacity 0.5s ease 0.2s, transform 0.5s ease 0.2s;
+      left: 50%;
+      top: 50%;
+      transform-origin: center center;
+      user-select:none;
+      -webkit-user-select:none;
+    }
+    .plate.open .reveal-num {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+      text-shadow: 0 5px 12px rgba(200,40,40,0.8);
+    }
+
+    /* Input and guess button below plate */
+    .guess-controls {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 24px;
+      user-select:none;
+    }
+    #guessInput {
+      width: 120px;
+      height: 44px;
+      border-radius: 10px;
+      border: 2px solid var(--input-border);
+      font-size: 1.3rem;
+      padding: 0 14px;
+      outline: none;
+      box-shadow: inset 0 3px 8px #ddd;
+      transition: border-color 0.25s ease;
+      user-select: text;
+    }
+    #guessInput:focus:not(:disabled) {
+      border-color: var(--accent);
+      box-shadow: 0 0 8px var(--accent);
+    }
+    #guessInput:disabled {
+      background: #eee;
+      color: #888;
+      cursor: not-allowed;
+    }
+    #guessBtn {
+      padding: 12px 26px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      border-radius: 14px;
+      border: none;
+      background-color: var(--btn-bg);
+      color: var(--btn-color);
+      cursor: pointer;
+      box-shadow: 0 6px 16px rgba(200, 40, 40, 0.35);
+      transition: background-color 0.3s ease;
+      user-select:none;
+      -webkit-user-select:none;
+    }
+    #guessBtn:hover:not(:disabled) {
+      background-color: var(--btn-hover);
+    }
+    #guessBtn:disabled {
+      background-color: #d69b9b;
+      cursor: default;
+    }
+
+    /* Message/hint below */
+    #message {
+      min-height: 32px;
+      font-weight: 700;
+      margin-bottom: 18px;
+      font-size: 1.15rem;
+      color: var(--message-error);
+      user-select: text;
+    }
+    #message.success {
+      color: var(--message-success);
+    }
+
+    /* Attempts left text */
+    #attemptsLeft {
+      font-weight: 600;
+      margin-bottom: 38px;
+      font-size: 1.1rem;
+      color: var(--text-primary);
+      user-select: text;
+    }
+
+    /* Buttons below main container */
+    .footer-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      margin-bottom: 30px;
+    }
+    button.footer-btn {
+      padding: 14px 34px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      border-radius: 16px;
+      border: none;
+      cursor: pointer;
+      background-color: var(--btn-bg);
+      color: var(--btn-color);
+      box-shadow: 0 8px 22px rgba(200,40,40,0.48);
+      transition: background-color 0.3s ease;
+      user-select:none;
+      -webkit-user-select:none;
+    }
+    button.footer-btn:hover {
+      background-color: var(--btn-hover);
+    }
+
+    /* Promo text area below buttons */
+    .promo-area {
+      text-align: center;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--accent-dark);
+      font-style: italic;
+      user-select: text;
+      opacity: 0.75;
+      letter-spacing: 0.05em;
+    }
+    .promo-area a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 800;
+    }
+    .promo-area a:hover {
+      text-decoration: underline;
+    }
+
+    /* Responsive */
+    @media (max-width: 400px) {
+      .plate {
+        width: 280px;
+        height: 190px;
+      }
+      .half {
+        font-size: 4.5rem;
+      }
+      .reveal-num {
+        font-size: 5.5rem;
+      }
+      #guessInput {
+        width: 100px;
+        height: 38px;
+        font-size: 1.1rem;
+      }
+      #guessBtn {
+        padding: 10px 22px;
+        font-size: 1rem;
+      }
+      button.footer-btn {
+        padding: 12px 24px;
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container" role="main" aria-label="Guess The Number game">
+
+    <h1>Guess The Number</h1>
+    <p class="instructions">Guess a number between 1 and 100. You have 5 attempts.</p>
+
+    <div class="plate" id="plate" aria-live="polite" aria-atomic="true" aria-label="Mystery number block">
+      <div class="half left"><span class="mark">?</span></div>
+      <div class="half right"><span class="mark">?</span></div>
+      <div class="reveal-num" id="revealNum" aria-hidden="true">0</div>
+    </div>
+
+    <div class="guess-controls">
+      <input
+        type="number"
+        id="guessInput"
+        aria-label="Enter your guess"
+        min="1"
+        max="100"
+        autocomplete="off"
+        inputmode="numeric"
+        pattern="[0-9]*"
+        placeholder="Your guess..."
+      />
+      <button id="guessBtn" aria-label="Submit your guess">Guess</button>
+    </div>
+
+    <div id="message" aria-live="assertive" aria-atomic="true"></div>
+    <div id="attemptsLeft">Attempt 1 of 5</div>
+
+    <div class="footer-buttons">
+      <button class="footer-btn" id="restartBtn" type="button">Restart</button>
+      <button class="footer-btn" id="backBtn" type="button">Back to Home</button>
+    </div>
+
+  </div>
+
+  <script>
+    (() => {
+      const plate = document.getElementById('plate');
+      const revealNum = document.getElementById('revealNum');
+      const guessInput = document.getElementById('guessInput');
+      const guessBtn = document.getElementById('guessBtn');
+      const message = document.getElementById('message');
+      const attemptsLeftText = document.getElementById('attemptsLeft');
+      const restartBtn = document.getElementById('restartBtn');
+      const backBtn = document.getElementById('backBtn');
+
+      const MIN = 1;
+      const MAX = 100;
+      const MAX_ATTEMPTS = 5;
+
+      let secretNumber = 0;
+      let attemptsLeft = MAX_ATTEMPTS;
+      let gameOver = false;
+
+      function ordinal(n) {
+        const s=["th","st","nd","rd"],
+          v=n%100;
+        return n+(s[(v-20)%10]||s[v]||s[0]);
+      }
+
+      function resetGame() {
+        secretNumber = Math.floor(Math.random() * (MAX - MIN + 1)) + MIN;
+        attemptsLeft = MAX_ATTEMPTS;
+        gameOver = false;
+        message.textContent = '';
+        message.classList.remove('success');
+        attemptsLeftText.textContent = `Attempt 1 of ${MAX_ATTEMPTS}`;
+        revealNum.textContent = '';
+        revealNum.setAttribute('aria-hidden', 'true');
+        guessInput.disabled = false;
+        guessBtn.disabled = false;
+        guessInput.value = '';
+        plate.classList.remove('open');
+        guessInput.focus();
+        // Uncomment to debug secret number
+        // console.log("Secret Number:", secretNumber);
+      }
+
+      function revealNumber(win) {
+        revealNum.textContent = secretNumber;
+        revealNum.setAttribute('aria-hidden', 'false');
+        plate.classList.add('open');
+        guessInput.disabled = true;
+        guessBtn.disabled = true;
+        gameOver = true;
+        if (win) {
+          message.style.color = 'var(--message-success)';
+          message.textContent = '🎉 Correct! You win!';
+          message.classList.add('success');
+        } else {
+          message.style.color = 'var(--message-error)';
+          message.textContent = `😞 Out of attempts! The number was ${secretNumber}`;
+          message.classList.remove('success');
+        }
+      }
+
+      function handleGuess() {
+        if (gameOver) return;
+        const guessVal = guessInput.value.trim();
+        if (guessVal === '') {
+          message.style.color = 'var(--message-error)';
+          message.textContent = 'Please enter a number!';
+          return;
+        }
+        const guessNum = Number(guessVal);
+        if (
+          !Number.isInteger(guessNum) ||
+          guessNum < MIN ||
+          guessNum > MAX
+        ) {
+          message.style.color = 'var(--message-error)';
+          message.textContent = `Enter a whole number between ${MIN} and ${MAX}`;
+          return;
+        }
+
+        attemptsLeft--;
+        const attemptNumber = MAX_ATTEMPTS - attemptsLeft;
+        attemptsLeftText.textContent = `Attempt ${ordinal(attemptNumber)} of ${MAX_ATTEMPTS}`;
+
+        if (guessNum === secretNumber) {
+          revealNumber(true);
+          return;
+        } else if (attemptsLeft <= 0) {
+          revealNumber(false);
+          return;
+        } else {
+          message.style.color = 'var(--message-error)';
+          message.textContent = guessNum < secretNumber
+            ? `The hidden number is higher than ${guessNum}.`
+            : `The hidden number is lower than ${guessNum}.`;
+          guessInput.value = '';
+          guessInput.focus();
+        }
+      }
+
+      guessBtn.addEventListener('click', handleGuess);
+      guessInput.addEventListener('keydown', e => {
+        if (e.key === 'Enter') {
+          handleGuess();
+        }
+      });
+
+      restartBtn.addEventListener('click', resetGame);
+      backBtn.addEventListener('click', () => {
+        window.location.href = 'byteplay.html';
+      });
+
+      resetGame();
+    })();
+  </script>
+</body>
+</html>

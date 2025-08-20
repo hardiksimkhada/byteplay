@@ -1,0 +1,775 @@
+<!-- Save as 30sr.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>30s Riddle </title>
+
+<link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Cardo:400,700&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --bg-ivory: #f6efe3;
+    --parchment: #fff7e6;
+    --ink: #2b1f15;
+    --gold: #b8862b;
+    --accent: #8a5a2a;
+    --muted: #8c7b6a;
+    --danger: #b83b3b;
+    --glass: rgba(40,20,8,0.06);
+    --card-shadow: 0 14px 40px rgba(20,12,6,0.08);
+    --heart-full: #d64040;
+    --heart-empty: #e9d9d9;
+  }
+
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    font-family: "Merriweather", serif;
+    background:
+      radial-gradient(circle at 10% 20%, rgba(200,170,120,0.06), transparent 12%),
+      linear-gradient(180deg, var(--bg-ivory) 0%, #efe4d1 100%);
+    color:var(--ink);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:28px;
+  }
+
+  /* Outer container */
+  .stage {
+    width:100%;
+    max-width:980px;
+    border-radius:18px;
+    background: linear-gradient(180deg,#fffaf0,#fff6e6);
+    box-shadow: var(--card-shadow);
+    padding:28px;
+    position:relative;
+    overflow:visible;
+  }
+
+  /* Header */
+  .header {
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:20px;
+    margin-bottom:18px;
+  }
+  .brand {
+    display:flex;
+    align-items:center;
+    gap:14px;
+  }
+  .seal {
+    width:62px;height:62px;border-radius:12px;
+    background:linear-gradient(180deg,#b8862b,#a06e2a);
+    display:flex;align-items:center;justify-content:center;
+    color:#fff;font-weight:700;font-family:Cardo, serif;
+    font-size:20px;box-shadow:0 8px 18px rgba(160,110,40,0.25);
+  }
+  .title {
+    display:flex;flex-direction:column;line-height:1;
+  }
+  .title h1 {
+    margin:0;font-family:"Cardo", serif;font-weight:700;
+    font-size:22px;color:var(--accent);letter-spacing:0.06em;
+    text-transform:uppercase;
+  }
+  .title .sub { margin:0;color:var(--muted);font-size:13px }
+
+  /* top-right status */
+  .status {
+    display:flex;align-items:center;gap:12px;
+  }
+  .hearts { display:flex; gap:8px; align-items:center; }
+  .heart {
+    width:34px;height:34px;border-radius:8px;
+    background:linear-gradient(180deg,var(--heart-full),#b32b2b);
+    display:flex;align-items:center;justify-content:center;color:white;font-weight:800;
+    font-family:Cardo, serif; box-shadow:0 6px 12px rgba(179,43,43,0.22);
+    transition:transform .2s ease, opacity .3s ease;
+  }
+  .heart.empty {
+    background:linear-gradient(180deg,var(--heart-empty),#f2e9e9);
+    color:#c08a8a;
+    box-shadow:none;
+    opacity:0.45;
+    transform:scale(.95);
+  }
+  .score {
+    background:var(--glass); padding:10px 12px;border-radius:999px;color:var(--ink); font-weight:700;
+    border:1px solid rgba(0,0,0,0.03);
+  }
+
+  /* Main area */
+  .main {
+    display:grid;
+    grid-template-columns: 1fr 300px;
+    gap:18px;
+  }
+  @media (max-width:900px){ .main { grid-template-columns: 1fr } }
+
+  /* parchment card */
+  .parchment {
+    background: linear-gradient(180deg,#fffaf0,#fff2dd);
+    border-radius:12px;
+    padding:22px;
+    border:1px solid rgba(120,70,30,0.06);
+    box-shadow: 0 10px 30px rgba(40,20,8,0.06);
+    min-height:260px;
+    display:flex;flex-direction:column;
+    justify-content:flex-start;
+    position:relative;
+  }
+
+  /* question block - elegant */
+  .meta {
+    display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;
+  }
+  .meta .label { font-weight:700;color:var(--accent); }
+  .meta .timer { font-weight:700;color:var(--danger); font-family:Cardo, serif; }
+
+  .question {
+    font-family: "Cardo", serif;
+    font-size:20px;
+    margin:6px 0 8px 0;
+    color: #2b1608;
+  }
+  .hint {
+    font-size:13px;color:var(--muted);margin:0 0 12px 0; min-height:18px;
+  }
+
+  /* options styled like wax seals */
+  .opts {
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+  }
+  @media (max-width:520px){ .opts{ grid-template-columns:1fr } }
+
+  .opt {
+    background:linear-gradient(180deg,#fff6ee,#ffeecc);
+    border-radius:10px;padding:12px 14px;border:1px solid rgba(110,60,20,0.06);
+    font-weight:700;color:var(--accent);cursor:pointer;box-shadow: 0 8px 22px rgba(160,110,40,0.08);
+    transition: transform .14s ease, box-shadow .14s ease, opacity .18s ease;
+    display:flex;align-items:center;gap:10px;
+  }
+  .opt:hover { transform:translateY(-3px); box-shadow:0 14px 30px rgba(160,110,40,0.14) }
+  .opt .letter {
+    width:36px;height:36px;border-radius:8px;background:linear-gradient(180deg,#e6c58a,#c5963f);
+    color:white; display:flex;align-items:center;justify-content:center;font-weight:800;
+    font-family:Cardo, serif;
+  }
+  .opt.correct { background:linear-gradient(180deg,#eef9ef,#dbf2da); border-color:#cfe9d1; color:#1a5c36 }
+  .opt.wrong { background:linear-gradient(180deg,#fff2f2,#ffecec); border-color:#f1c8c8; color:#8b2b2b }
+
+  /* right panel: hourglass + progress */
+  .side {
+    display:flex;flex-direction:column;gap:14px;
+  }
+  .hourglassWrap {
+    background:linear-gradient(180deg,#fff8f0,#fff3e6);
+    border-radius:12px;padding:16px;border:1px solid rgba(120,70,20,0.05);
+    display:flex;flex-direction:column;align-items:center;gap:10px;
+    min-height:180px;justify-content:center;
+  }
+
+  /* simple hourglass graphic with CSS animation */
+  .hourglass {
+    width:86px;height:120px;position:relative;
+    filter:drop-shadow(0 10px 20px rgba(40,20,8,0.06));
+  }
+  .hg-top, .hg-bottom {
+    width:86px;height:58px;background:linear-gradient(180deg,#fff3de,#f7e0be);
+    border-left:8px solid rgba(120,70,20,0.06);border-right:8px solid rgba(120,70,20,0.06);
+    border-radius:10px;
+    box-sizing:border-box;
+    position:absolute;left:0;
+  }
+  .hg-top { top:0; transform-origin:50% 100%; border-bottom-left-radius:36px;border-bottom-right-radius:36px; }
+  .hg-bottom { bottom:0; transform-origin:50% 0%; border-top-left-radius:36px;border-top-right-radius:36px; }
+  .hg-mid {
+    position:absolute; top:44px; left:22px; width:40px;height:32px; overflow:hidden;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .sand {
+    width:18px;height:18px;background:linear-gradient(180deg,#e7b36a,#c8862c);
+    border-radius:50%;
+    animation: sandFlow linear forwards;
+    box-shadow:0 2px 6px rgba(160,100,30,0.3);
+  }
+  .sandPile {
+    position:absolute; bottom:0; left:0; right:0; height:0; background:linear-gradient(180deg,#f6d6a2,#e3b36a);
+    border-radius:20px 20px 6px 6px;
+    width:60%; margin:0 auto; transition:height linear;
+  }
+
+  /* sandFlow will be controlled by JS to match timer */
+  @keyframes sandFlow {
+    from { transform:translateY(-28px); opacity:1 }
+    to { transform:translateY(60px); opacity:0.6 }
+  }
+
+  .timeBig { font-weight:800; color:var(--accent); font-family:Cardo, serif; font-size:20px; }
+
+  /* progress box */
+  .panelBox {
+    background:linear-gradient(180deg,#fffaf6,#fff7e8);
+    border-radius:10px;padding:12px;border:1px solid rgba(120,70,20,0.04);
+    font-weight:700;color:var(--accent); text-align:center;
+  }
+
+  /* control row bottom */
+  .controls {
+    display:flex;gap:12px;align-items:center;margin-top:12px;
+  }
+  .btn {
+    padding:10px 14px;border-radius:10px;border:0;font-weight:800;cursor:pointer;
+    background:linear-gradient(180deg,#c99646,#b1762a); color:white; box-shadow:0 10px 24px rgba(160,110,40,0.14);
+  }
+  .btn.secondary {
+    background:linear-gradient(180deg,#fff6ee,#ffe6c9); color:var(--accent); border:1px solid rgba(120,70,20,0.06);
+    box-shadow:none;font-weight:700;
+  }
+  .small { font-size:13px;color:var(--muted) }
+
+  /* how to play icon (parchment scroll) */
+  .how {
+    position:fixed; right:20px; bottom:20px; width:54px;height:54px;border-radius:10px;
+    background:linear-gradient(180deg,#fff3de,#ffe8c7); display:flex;align-items:center;justify-content:center;
+    box-shadow:0 12px 30px rgba(40,20,8,0.12); cursor:pointer; font-weight:800; color:var(--accent);
+  }
+
+  /* modal */
+  .modalBg { position:fixed; inset:0; display:none; align-items:center; justify-content:center; background:rgba(6,8,12,0.45); z-index:9999 }
+  .modal {
+    width:92%; max-width:720px; background:linear-gradient(180deg,#fffdf6,#fff8eb); border-radius:12px;padding:20px;
+    border:1px solid rgba(120,70,20,0.06);
+  }
+
+  /* message area */
+  .message {
+    margin-top:12px; font-weight:700; color:var(--accent);
+    min-height:20px;
+  }
+
+  /* subtle responsive */
+  @media (max-width:540px){
+    .title h1{ font-size:18px }
+    .seal{ width:46px;height:46px;font-size:16px }
+    .hourglass{ transform:scale(.9) }
+  }
+</style>
+</head>
+<body>
+
+  <div class="stage" role="application" aria-label="30s riddle parchment challenge">
+    <div class="header">
+      <div class="brand">
+        <div class="seal">R</div>
+        <div class="title">
+          <h1>30 SECOND RIDDLES </h1>
+          <div class="sub"></div>
+        </div>
+      </div>
+
+      <div class="status" aria-hidden="false">
+        <div class="hearts" id="heartsRow" aria-label="Lives">
+          <div class="heart" id="heart1">♥</div>
+          <div class="heart" id="heart2">♥</div>
+          <div class="heart" id="heart3">♥</div>
+        </div>
+        <div class="score" id="scorePill">Score: 0</div>
+      </div>
+    </div>
+
+    <div class="main">
+      <!-- left: parchment riddle card -->
+      <div class="parchment" role="region" aria-label="Riddle card">
+        <div class="meta">
+          <div class="label" id="levelLabel">Level 1</div>
+          <div class="timer" id="timerLabel">30s</div>
+        </div>
+
+        <h2 class="question" id="question">Click <strong>Start the Challenge</strong> to begin.</h2>
+        <p class="hint" id="hint"> </p>
+
+        <div class="opts" id="options">
+          <!-- options inserted here -->
+        </div>
+
+        <div class="controls" style="margin-top:14px">
+          <button class="btn" id="startBtn">Start the Challenge</button>
+          <button class="btn secondary" id="restartBtn">Restart</button>
+          <button class="btn secondary" id="backBtn">Back to Home</button>
+          <div style="flex:1"></div>
+          <div class="small" id="progressText">Riddle 0 / 5</div>
+        </div>
+
+        <div class="message" id="message">&nbsp;</div>
+      </div>
+
+      <!-- right: hourglass / progress -->
+      <div class="side">
+        <div class="hourglassWrap">
+          <div class="timeBig">Time</div>
+          <div class="hourglass" aria-hidden="true">
+            <div class="hg-top"></div>
+            <div class="hg-mid">
+              <div class="sand" id="sand"></div>
+            </div>
+            <div class="hg-bottom"></div>
+            <div class="sandPile" id="pile"></div>
+          </div>
+          <div class="small">30 seconds per riddle</div>
+        </div>
+
+        <div class="panelBox">
+          <div class="small">Level Progress</div>
+          <div style="height:10px;margin-top:10px;background:#fff;border-radius:999px;overflow:hidden">
+            <div id="levelBar" style="width:0%;height:100%;background:linear-gradient(90deg,#f0c36b,#c9963a);"></div>
+          </div>
+          <div style="margin-top:10px;font-weight:700" id="levelCounter">Riddle 0 / 5</div>
+        </div>
+
+        <div class="panelBox small">
+          <div>Tip: Use keys 1-4 to pick an answer. Press Enter to start.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- how to play -->
+  <div class="how" id="howBtn" title="How to play">?</div>
+
+  <div class="modalBg" id="modalBg" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true">
+      <h3 style="margin-top:0">How to play — 30 Second Riddles</h3>
+      <p>You will face one riddle at a time. You have <strong>30 seconds</strong> to answer each riddle. Each level holds <strong>5 riddles</strong>. You have <strong>3 hearts</strong> (lives). A wrong answer or time out costs one heart, but you continue from the next riddle — the game ends only when all three hearts are gone. Gain points for correct answers. Use <strong>1–4</strong> keys or click options. Press <strong>Restart</strong> to reset the entire game. Press <strong>Back to Home</strong> to return to the home to play other games.</p>
+      <div style="text-align:right;margin-top:12px">
+        <button class="btn" id="closeModal">Close</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+/* 30sr.html - Parchment Riddles
+   - 5 riddles per level, 30s each
+   - 3 hearts (lives). Wrong answer or timeout => -1 heart, continue.
+   - Start button to begin. Back -> byteplay.html
+   - Keyboard: 1-4 to choose option, Enter to Start
+*/
+
+/* ========== CONFIG ========== */
+const RIDDLES_PER_LEVEL = 5;
+const BASE_TIME = 30; // seconds
+
+/* Minimal riddle dataset (feel free to expand later) */
+const levels = [
+  // Level 1
+  [
+    { q:"I speak without a mouth and hear without ears. I have nobody, but I come alive with wind. What am I?",
+      options:["An echo","A shadow","A cloud","A leaf"], a:0, hint:"You hear it in canyons." },
+
+    { q:"What gets wetter the more it dries?",
+      options:["Towel","Sponge","Cloth","Paper"], a:0, hint:"Used after a shower." },
+
+    { q:"I have keys but no locks. I have space but no rooms. You can enter but not go in. What am I?",
+      options:["Keyboard","Map","Piano","Book"], a:0, hint:"You type on me." },
+
+    { q:"The more you take, the more you leave behind. What are they?",
+      options:["Footsteps","Time","Mistakes","Photographs"], a:0, hint:"They appear with each step." },
+
+    { q:"I am always hungry and will die if not fed, but whatever I touch will soon turn red. What am I?",
+      options:["Fire","Rust","Oxidation","Frost"], a:0, hint:"Campfires and candles are examples." }
+  ],
+  // Level 2
+  [
+    { q:"I fly without wings, I cry without eyes. Wherever I go darkness follows me. What am I?",
+      options:["Smoke","Cloud","Wind","Mist"], a:0, hint:"Often from burning." },
+
+    { q:"I have branches, but no fruit, trunk or leaves. What am I?",
+      options:["Bank","River","Road","Book"], a:0, hint:"Where you deposit money." },
+
+    { q:"I’m not alive, but I grow; I don’t have lungs, but I need air. What am I?",
+      options:["Fire","Crystal","Shadow","Rust"], a:0, hint:"Extinguish me with water." },
+
+    { q:"Remove my first letter and I still sound the same. Remove my last and I still sound the same. What word am I?",
+      options:["Empty","Queue","Ate","I"], a:1, hint:"A line of waiting." },
+
+    { q:"Which word becomes shorter when you add two letters to it?",
+      options:["Short","Small","Less","Tiny"], a:0, hint:"Irony in the word." }
+  ],
+  // Level 3
+  [
+    { q:"What can bring back the dead; make us cry, make us laugh, make us young; is born in an instant, yet lasts a lifetime?",
+      options:["Memory","Song","Story","Dream"], a:0, hint:"Photographs do this." },
+
+    { q:"This thing all things devour: birds, beasts, trees, flowers; gnaws iron, bites steel; grinds hard stones to meal. What is it?",
+      options:["Time","Rust","Age","Decay"], a:0, hint:"It erases all." },
+
+    { q:"I have towns without people, mountains without stone, and waters without fish. What am I?",
+      options:["Map","Dream","Painting","Memory"], a:0, hint:"Used for navigation." },
+
+    { q:"I am taken from a mine, shut in a wooden case, from which I am never released, yet I am used by almost everyone. What am I?",
+      options:["Pencil lead","Coal","Gold","Diamond"], a:0, hint:"You write with me." },
+
+    { q:"I start with an 'e' and end with an 'e' and usually contain only one letter. What am I?",
+      options:["Envelope","Edge","Engine","Elope"], a:0, hint:"You send me by post." }
+  ],
+  // Level 4
+  [
+    { q:"What cannot be seen, cannot be felt, cannot be heard, cannot be smelt; it lies behind stars and under hills, and empty holes it fills. What is it?",
+      options:["Darkness","Air","Shadow","Void"], a:0, hint:"Opposite of light." },
+
+    { q:"The more you have of me, the less you see. What am I?",
+      options:["Darkness","Fog","Snow","Mist"], a:0, hint:"Comes at night." },
+
+    { q:"I am always in front of you but can never be seen. What am I?",
+      options:["Future","Horizon","Wind","Tomorrow"], a:0, hint:"Has not happened yet." },
+
+    { q:"I have a heart that doesn't beat. What am I?",
+      options:["Artichoke","Rock","Clock","Tree"], a:0, hint:"A vegetable." },
+
+    { q:"I build up castles; I tear down mountains; I make some men blind; I help others to see. What am I?",
+      options:["Sand","Time","Wind","Water"], a:0, hint:"Used to make glass." }
+  ],
+  // Level 5
+  [
+    { q:"It belongs to you, but other people use it more than you do. What is it?",
+      options:["Your name","Your phone","Your money","Your idea"], a:0, hint:"People use it to call you." },
+
+    { q:"What comes once in a minute, twice in a moment, but never in a thousand years?",
+      options:["The letter M","Time","Flash","Chance"], a:0, hint:"Look at the word letters." },
+
+    { q:"Alive without breath, as cold as death; never thirsty, ever drinking. What is it?",
+      options:["Fish","Stone","Ice","Plant"], a:0, hint:"It swims." },
+
+    { q:"I have one eye but cannot see. What am I?",
+      options:["Needle","Hurricane","Potato","Storm"], a:0, hint:"You sew with me." },
+
+    { q:"What has roots as nobody sees, is taller than trees, up, up it goes, and yet never grows?",
+      options:["Mountain","Cloud","Tree","Tower"], a:0, hint:"King of peaks." }
+  ]
+];
+
+/* ========== STATE ========== */
+let playing = false;
+let currentLevel = 1;
+let riddleIndexInLevel = 0;    // counts how many riddles presented in current level (0..RIDDLES_PER_LEVEL)
+let hearts = 3;
+let score = 0;
+let currentRiddle = null;
+let currentAnswerIndex = null;
+let countdown = BASE_TIME;
+let timerHandle = null;
+let answeredThisRiddle = false;
+
+/* ========== DOM refs ========== */
+const heartEls = [document.getElementById('heart1'), document.getElementById('heart2'), document.getElementById('heart3')];
+const scorePill = document.getElementById('scorePill');
+const levelLabel = document.getElementById('levelLabel');
+const questionEl = document.getElementById('question');
+const hintEl = document.getElementById('hint');
+const optionsEl = document.getElementById('options');
+const timerLabel = document.getElementById('timerLabel');
+const messageEl = document.getElementById('message');
+const startBtn = document.getElementById('startBtn');
+const restartBtn = document.getElementById('restartBtn');
+const backBtn = document.getElementById('backBtn');
+const levelBar = document.getElementById('levelBar');
+const levelCounter = document.getElementById('levelCounter');
+const sandEl = document.getElementById('sand');
+const pileEl = document.getElementById('pile');
+const modalBg = document.getElementById('modalBg');
+const howBtn = document.getElementById('howBtn');
+const closeModal = document.getElementById('closeModal');
+
+/* ========== UTIL ========== */
+function updateHearts(){
+  for(let i=0;i<3;i++){
+    if(i < hearts){
+      heartEls[i].classList.remove('empty');
+      heartEls[i].style.opacity = '1';
+    } else {
+      heartEls[i].classList.add('empty');
+      heartEls[i].style.opacity = '0.6';
+    }
+  }
+}
+function updateScore(){
+  scorePill.textContent = `Score: ${score}`;
+}
+function updateLevelUI(){
+  levelLabel.textContent = `Level ${currentLevel}`;
+  levelCounter.textContent = `Riddle ${riddleIndexInLevel} / ${RIDDLES_PER_LEVEL}`;
+  const pct = (riddleIndexInLevel / RIDDLES_PER_LEVEL) * 100;
+  levelBar.style.width = `${pct}%`;
+}
+
+/* pick a random riddle object for the current level */
+function pickNextRiddle(){
+  const pool = levels[currentLevel - 1];
+  if(!pool || pool.length === 0) return null;
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+
+/* show question and build options */
+function showRiddle(){
+  currentRiddle = pickNextRiddle();
+  if(!currentRiddle){
+    questionEl.textContent = 'No riddles available for this level.';
+    return;
+  }
+  answeredThisRiddle = false;
+  countdown = BASE_TIME;
+  updateTimerVisual();
+
+  questionEl.textContent = currentRiddle.q;
+  hintEl.textContent = ' ';
+  optionsEl.innerHTML = '';
+
+  currentRiddle.options.forEach((opt, idx) => {
+    const btn = document.createElement('button');
+    btn.className = 'opt';
+    btn.innerHTML = `<div class="letter">${String.fromCharCode(65+idx)}</div><div>${opt}</div>`;
+    btn.dataset.index = idx;
+    btn.addEventListener('click', ()=> handleAnswer(idx, btn));
+    optionsEl.appendChild(btn);
+  });
+
+  riddleIndexInLevel++;
+  updateLevelUI();
+  startCountdown();
+}
+
+/* handle answer click */
+function handleAnswer(idx, btnEl){
+  if(!playing || answeredThisRiddle) return;
+  answeredThisRiddle = true;
+  stopCountdown();
+  // disable all options
+  const allBtns = Array.from(optionsEl.querySelectorAll('.opt'));
+  allBtns.forEach(b=>b.disabled = true);
+
+  if(idx === currentRiddle.a){
+    // correct
+    btnEl.classList.add('correct');
+    const points = 10 * currentLevel;
+    score += points;
+    updateScore();
+    showMessage(`Correct! +${points} points`, 'green');
+    setTimeout(nextStepAfterCorrect, 900);
+  } else {
+    // wrong
+    btnEl.classList.add('wrong');
+    hearts -= 1;
+    updateHearts();
+    showMessage(`Wrong! -1 heart. Hint: ${currentRiddle.hint}`, 'crimson');
+    hintEl.textContent = `Hint: ${currentRiddle.hint}`;
+    setTimeout(nextStepAfterWrong, 900);
+  }
+}
+
+/* when time runs out */
+function handleTimeout(){
+  if(answeredThisRiddle) return;
+  answeredThisRiddle = true;
+  stopCountdown();
+  // show correct option
+  const allBtns = Array.from(optionsEl.querySelectorAll('.opt'));
+  allBtns.forEach(b=>{
+    if(Number(b.dataset.index) === currentRiddle.a) b.classList.add('correct');
+    b.disabled = true;
+  });
+  hearts -= 1;
+  updateHearts();
+  hintEl.textContent = `Time's up! Hint: ${currentRiddle.hint}`;
+  showMessage('Time out! -1 heart', 'crimson');
+  setTimeout(nextStepAfterWrong, 900);
+}
+
+/* move on after a correct answer */
+function nextStepAfterCorrect(){
+  // if finished this level's riddles, level up
+  if(riddleIndexInLevel >= RIDDLES_PER_LEVEL){
+    currentLevel++;
+    riddleIndexInLevel = 0;
+    showMessage(`Level cleared — advancing to level ${currentLevel}`, 'goldenrod');
+  }
+  // check end conditions
+  if(hearts <= 0){
+    gameOver();
+    return;
+  }
+  if(currentLevel > levels.length){
+    // player cleared all levels available
+    questionEl.textContent = 'You cleared all available levels! Well done.';
+    optionsEl.innerHTML = '';
+    playing = false;
+    return;
+  }
+  // present next unless game ended
+  showRiddle();
+}
+
+/* move on after wrong or timeout */
+function nextStepAfterWrong(){
+  if(hearts <= 0){
+    gameOver();
+    return;
+  }
+  if(riddleIndexInLevel >= RIDDLES_PER_LEVEL){
+    // finish level and advance
+    currentLevel++;
+    riddleIndexInLevel = 0;
+    showMessage(`Level finished — moving to level ${currentLevel}`, 'goldenrod');
+  }
+  if(currentLevel > levels.length){
+    questionEl.textContent = 'No more levels configured.';
+    optionsEl.innerHTML = '';
+    playing = false;
+    return;
+  }
+  showRiddle();
+}
+
+/* show a temporary message */
+let msgTimer = null;
+function showMessage(txt, color){
+  messageEl.textContent = txt;
+  if(color) messageEl.style.color = color;
+  else messageEl.style.color = 'var(--accent)';
+  clearTimeout(msgTimer);
+  msgTimer = setTimeout(()=>{ messageEl.textContent = ' '; }, 4000);
+}
+
+/* ========== Timer (hourglass) ========== */
+function updateTimerVisual(){
+  timerLabel.textContent = `${Math.ceil(countdown)}s`;
+  // update sand animation: set pile height proportional to (1 - pct)
+  const pct = Math.max(0, Math.min(1, countdown / BASE_TIME));
+  // top sand movement and bottom pile height (inverse)
+  // pile height goes from 0% -> 70% based on time elapsed
+  pileEl.style.height = `${(1 - pct) * 60}%`;
+  // speed the sand element animation by setting its animation duration dynamically
+  sandEl.style.animationDuration = `${Math.max(0.8, BASE_TIME * pct / 4)}s`;
+}
+
+function startCountdown(){
+  stopCountdown();
+  countdown = BASE_TIME;
+  updateTimerVisual();
+  // animate sand: we rely on periodic tick to update visuals
+  timerHandle = setInterval(()=>{
+    countdown -= 0.2;
+    if(countdown <= 0){
+      countdown = 0;
+      updateTimerVisual();
+      stopCountdown();
+      handleTimeout();
+    } else {
+      updateTimerVisual();
+    }
+  }, 200);
+}
+
+function stopCountdown(){
+  if(timerHandle) { clearInterval(timerHandle); timerHandle = null; }
+}
+
+/* ========== Controls ========== */
+startBtn.addEventListener('click', ()=>{
+  if(playing) return;
+  // initialize
+  playing = true;
+  currentLevel = 1;
+  riddleIndexInLevel = 0;
+  hearts = 3;
+  score = 0;
+  updateHearts();
+  updateScore();
+  updateLevelUI();
+  optionsEl.innerHTML = '';
+  hintEl.textContent = ' ';
+  showMessage('Challenge started — good luck!', 'green');
+  setTimeout(()=> {
+    showRiddle();
+  }, 350);
+});
+
+restartBtn.addEventListener('click', ()=>{
+  // full reset, but do not auto-start (user may press Start)
+  stopCountdown();
+  playing = false;
+  currentLevel = 1;
+  riddleIndexInLevel = 0;
+  hearts = 3;
+  score = 0;
+  updateHearts();
+  updateScore();
+  updateLevelUI();
+  questionEl.textContent = 'Click Start the Challenge to begin.';
+  optionsEl.innerHTML = '';
+  hintEl.textContent = ' ';
+  showMessage('Game reset. Press Start to play.', 'var(--accent)');
+});
+
+backBtn.addEventListener('click', ()=>{
+  // navigate to your homepage file
+  window.location.href = 'byteplay.html';
+});
+
+/* how-to modal */
+howBtn.addEventListener('click', ()=> {
+  modalBg.style.display = 'flex';
+  modalBg.setAttribute('aria-hidden','false');
+});
+closeModal.addEventListener('click', ()=> {
+  modalBg.style.display = 'none';
+  modalBg.setAttribute('aria-hidden','true');
+});
+modalBg.addEventListener('click', (e)=>{
+  if(e.target === modalBg) { modalBg.style.display = 'none'; modalBg.setAttribute('aria-hidden','true'); }
+});
+
+/* keyboard bindings: 1-4 to choose options; Enter to start */
+window.addEventListener('keydown', (e)=>{
+  if(e.key === 'Enter'){
+    // start if not playing
+    if(!playing) startBtn.click();
+    return;
+  }
+  if(!playing) return;
+  if(['1','2','3','4'].includes(e.key)){
+    const idx = Number(e.key) - 1;
+    const btn = optionsEl.querySelector(`button[data-index="${idx}"]`);
+    if(btn) btn.click();
+  }
+});
+
+/* game over */
+function gameOver(){
+  stopCountdown();
+  playing = false;
+  questionEl.textContent = `All hearts lost — Game Over. Final score: ${score}`;
+  optionsEl.innerHTML = '';
+  hintEl.textContent = 'Press Restart to try again or Back to Home.';
+  showMessage('Game Over', 'crimson');
+}
+
+/* init UI */
+(function init(){
+  updateHearts();
+  updateScore();
+  updateLevelUI();
+  updateTimerVisual();
+  // prepare empty options slots
+  optionsEl.innerHTML = '';
+})();
+</script>
+</body>
+</html>

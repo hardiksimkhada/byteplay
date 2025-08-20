@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Speed Reaction</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Roboto:wght@400;700&display=swap" rel="stylesheet" />
+
+<style>
+  body {
+    margin: 0;
+    font-family: 'Roboto', Arial, sans-serif;
+    background: linear-gradient(180deg, #f0f2f5 0%, #d9e2ec 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 20px;
+    user-select: none;
+  }
+  h1 {
+    font-family: 'Bangers', cursive;
+    font-size: 4rem;
+    color: #d92c2c;
+    text-shadow: 3px 3px 15px rgba(217,44,44,0.8);
+    margin-bottom: 30px;
+    text-align: center;
+  }
+
+  .traffic-lights-container {
+    display: flex;
+    gap: 40px;
+    margin-bottom: 40px;
+  }
+
+  .traffic-light {
+    background: linear-gradient(180deg, #222, #111);
+    border-radius: 25px;
+    padding: 15px;
+    box-shadow: 0 0 25px rgba(0,0,0,0.8);
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat(3, 60px);
+    width: 60px;
+    gap: 15px;
+  }
+
+  .light {
+    border-radius: 50%;
+    background: #4a4a4a;
+    box-shadow: inset 0 0 12px rgba(0,0,0,0.8), 0 2px 5px rgba(0,0,0,0.3);
+    transition: background 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .red.on {
+    background: radial-gradient(circle at center, #ff4d4d, #7a0000);
+    box-shadow: 0 0 30px 5px rgba(255, 77, 77, 0.8);
+    animation: flicker 1.5s infinite alternate;
+  }
+
+  .green.on {
+    background: radial-gradient(circle at center, #6aff6a, #007a00);
+    box-shadow: 0 0 25px 6px rgba(106, 255, 106, 0.9);
+  }
+
+  @keyframes flicker {
+    0%   { box-shadow: 0 0 25px 5px rgba(255, 77, 77, 0.6); }
+    100% { box-shadow: 0 0 40px 8px rgba(255, 77, 77, 0.9); }
+  }
+
+  #timer {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #222;
+    margin-bottom: 10px;
+    min-width: 140px;
+    text-align: center;
+    user-select: text;
+  }
+
+  #message {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #d92c2c;
+    min-height: 30px;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  .buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    align-items: center;
+    margin-bottom: 30px;
+  }
+
+  .btn-row {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    width: 100%;
+  }
+
+  button {
+    background: #d92c2c;
+    color: white;
+    border: none;
+    padding: 12px 40px;
+    font-size: 1.2rem;
+    font-weight: 700;
+    border-radius: 12px;
+    cursor: pointer;
+    box-shadow: 0 6px 12px rgba(217,44,44,0.6);
+    transition: background 0.3s ease, transform 0.15s ease;
+    min-width: 150px;
+  }
+  button:hover:not(:disabled) {
+    background: #b12222;
+    transform: scale(1.05);
+  }
+  button:disabled {
+    background: #aaa;
+    cursor: default;
+    box-shadow: none;
+  }
+
+  #howToPlay {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #d92c2c;
+    color: white;
+    font-weight: 900;
+    font-size: 1.8rem;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(217,44,44,0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    user-select: none;
+    transition: background 0.3s ease;
+    z-index: 1000;
+  }
+  #howToPlay:hover {
+    background: #b12222;
+  }
+
+  #modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(30,30,30,0.7);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+  }
+
+  #modalContent {
+    background: white;
+    border-radius: 20px;
+    padding: 30px 40px;
+    max-width: 400px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    text-align: center;
+  }
+
+  #modalContent h2 {
+    margin-top: 0;
+    font-family: 'Bangers', cursive;
+    color: #d92c2c;
+    font-size: 2.5rem;
+    margin-bottom: 15px;
+  }
+
+  #modalContent p {
+    font-size: 1.1rem;
+    line-height: 1.5;
+    color: #333;
+  }
+
+  #modalCloseBtn {
+    margin-top: 25px;
+    padding: 10px 25px;
+    background: #d92c2c;
+    color: white;
+    border: none;
+    border-radius: 15px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 1rem;
+    box-shadow: 0 4px 12px rgba(217,44,44,0.7);
+  }
+  #modalCloseBtn:hover {
+    background: #b12222;
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 3rem;
+    }
+    .traffic-lights-container {
+      gap: 25px;
+    }
+    .traffic-light {
+      width: 45px;
+      grid-template-rows: repeat(3, 45px);
+      gap: 12px;
+      padding: 10px;
+    }
+    .buttons {
+      width: 100%;
+    }
+    button {
+      width: 100%;
+      font-size: 1.1rem;
+      padding: 12px 0;
+      min-width: unset;
+    }
+    #howToPlay {
+      width: 45px;
+      height: 45px;
+      font-size: 1.5rem;
+      bottom: 15px;
+      right: 15px;
+    }
+    .btn-row {
+      flex-direction: column;
+      gap: 12px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<h1>Speed Reaction</h1>
+
+<div class="traffic-lights-container">
+  <div id="light1" class="traffic-light">
+    <div class="light"></div>
+    <div class="light"></div>
+    <div class="light"></div>
+  </div>
+  <div id="light2" class="traffic-light">
+    <div class="light"></div>
+    <div class="light"></div>
+    <div class="light"></div>
+  </div>
+  <div id="light3" class="traffic-light">
+    <div class="light"></div>
+    <div class="light"></div>
+    <div class="light"></div>
+  </div>
+</div>
+
+<div id="timer">0.00s</div>
+<div id="message"></div>
+
+<div class="buttons">
+  <button id="startBtn">Start Race</button>
+  <div class="btn-row">
+    <button id="restartBtn" disabled>Restart</button>
+    <button id="backBtn">Back to Home</button>
+  </div>
+</div>
+
+<div id="howToPlay" title="How to Play">?</div>
+
+<div id="modalOverlay">
+  <div id="modalContent">
+    <h2>How to Play</h2>
+    <p>
+      There are three vertical traffic lights:<br><br>
+      - First, the <b>1st traffic light</b> turns all 3 red bulbs on.<br>
+      - Then the <b>2nd traffic light</b> turns all 3 red bulbs on.<br>
+      - Then the <b>3rd traffic light</b> turns all 3 red bulbs on.<br><br>
+      Finally, all three traffic lights turn green simultaneously.<br>
+      When the green lights appear, tap/click anywhere or press spacebar to stop the timer.<br><br>
+      Try to beat the world record of <b>0.04 seconds</b>! Good luck!
+    </p>
+    <button id="modalCloseBtn">Got it!</button>
+  </div>
+</div>
+
+<script>
+  const lights = [
+    document.querySelectorAll('#light1 .light'),
+    document.querySelectorAll('#light2 .light'),
+    document.querySelectorAll('#light3 .light')
+  ];
+  const timerDisplay = document.getElementById('timer');
+  const messageDisplay = document.getElementById('message');
+  const startBtn = document.getElementById('startBtn');
+  const restartBtn = document.getElementById('restartBtn');
+  const backBtn = document.getElementById('backBtn');
+
+  const howToPlay = document.getElementById('howToPlay');
+  const modalOverlay = document.getElementById('modalOverlay');
+  const modalCloseBtn = document.getElementById('modalCloseBtn');
+
+  let running = false;
+  let startTime = null;
+  let timerInterval = null;
+
+  function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  function clearAllLights() {
+    lights.forEach(lightSet => {
+      lightSet.forEach(bulb => {
+        bulb.classList.remove('red', 'green', 'on');
+      });
+    });
+  }
+
+  function setLightRed(index) {
+    clearAllLights();
+    lights[index].forEach(bulb => {
+      bulb.classList.add('red', 'on');
+    });
+  }
+
+  function setAllGreen() {
+    clearAllLights();
+    lights.forEach(lightSet => {
+      lightSet.forEach(bulb => {
+        bulb.classList.add('green', 'on');
+      });
+    });
+  }
+
+  async function runSequence() {
+    timerDisplay.textContent = '0.00s';
+    messageDisplay.textContent = '';
+    startBtn.disabled = true;
+    restartBtn.disabled = true;
+
+    for (let i = 0; i < lights.length; i++) {
+      setLightRed(i);
+      await delay(700);
+    }
+
+    setAllGreen();
+    startTimer();
+  }
+
+  function startTimer() {
+    startTime = performance.now();
+    running = true;
+
+    timerInterval = setInterval(() => {
+      const now = performance.now();
+      const elapsed = (now - startTime) / 1000;
+      timerDisplay.textContent = elapsed.toFixed(3) + 's';
+    }, 10);
+  }
+
+  function stopTimer() {
+    if (!running) return;
+    running = false;
+    clearInterval(timerInterval);
+
+    const endTime = performance.now();
+    const reactionTime = (endTime - startTime) / 1000;
+    timerDisplay.textContent = reactionTime.toFixed(3) + 's';
+
+    if (reactionTime <= 0.04) {
+      messageDisplay.textContent = "🏆 You beat the world record!";
+      messageDisplay.style.color = '#228B22';
+    } else {
+      messageDisplay.textContent = "Try again!";
+      messageDisplay.style.color = '#d92c2c';
+    }
+
+    restartBtn.disabled = false;
+  }
+
+  startBtn.addEventListener('click', runSequence);
+
+  restartBtn.addEventListener('click', async () => {
+    clearAllLights();
+    timerDisplay.textContent = '0.00s';
+    messageDisplay.textContent = '';
+    startBtn.disabled = true;
+    restartBtn.disabled = true;
+    running = false;
+    startTime = null;
+
+    await delay(700);
+
+    await runSequence();
+  });
+
+  backBtn.addEventListener('click', () => {
+    location.href = 'byteplay.html';
+  });
+
+  // Spacebar or tap/click to start or stop timer appropriately
+  document.addEventListener('keydown', e => {
+    if (e.code === 'Space') {
+      if (!running && startTime === null && !startBtn.disabled) {
+        runSequence();
+      } else if (running) {
+        stopTimer();
+      }
+      e.preventDefault();
+    }
+  });
+
+  document.addEventListener('click', () => {
+    if (!running && startTime === null && !startBtn.disabled) {
+      runSequence();
+    } else if (running) {
+      stopTimer();
+    }
+  });
+
+  document.addEventListener('touchstart', () => {
+    if (!running && startTime === null && !startBtn.disabled) {
+      runSequence();
+    } else if (running) {
+      stopTimer();
+    }
+  });
+
+  howToPlay.addEventListener('click', () => {
+    modalOverlay.style.display = 'flex';
+  });
+  modalCloseBtn.addEventListener('click', () => {
+    modalOverlay.style.display = 'none';
+  });
+  modalOverlay.addEventListener('click', e => {
+    if (e.target === modalOverlay) {
+      modalOverlay.style.display = 'none';
+    }
+  });
+</script>
+
+</body>
+</html>

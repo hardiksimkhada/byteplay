@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dead Red</title>
+
+  <!-- Import Creepster font from Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Creepster&display=swap" rel="stylesheet" />
+
+  <style>
+    html, body {
+      margin: 0; padding: 0;
+      background-color: white;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #8B0000;
+    }
+
+    body {
+      text-align: center;
+      user-select: none;
+      padding: 15px;
+      box-sizing: border-box;
+      position: relative;
+      min-height: 100vh;
+    }
+
+    h1 {
+      font-family: 'Creepster', cursive;
+      font-weight: 400;
+      font-size: 80px;
+      margin: 0 0 8px 0;
+      color: #8B0000;
+      text-shadow:
+        3px 3px 0 #550000,
+        -3px -3px 0 #550000,
+        3px -3px 0 #550000,
+        -3px 3px 0 #550000,
+        0 0 10px #a00000;
+      user-select: none;
+      white-space: nowrap;
+    }
+
+    #score {
+      font-size: 24px;
+      margin: 0 0 16px 0;
+      font-weight: 700;
+      color: #8B0000;
+      text-shadow: 0 0 6px #b83333;
+    }
+
+    #gameContainer {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      z-index: 1;
+    }
+
+
+  #gameTitle {
+  width: 240px;   /* double the previous 120px */
+  height: auto;   /* maintain aspect ratio */
+  display: block;
+  margin: 10px auto; /* center it */
+}
+
+
+
+    #grid {
+      display: grid;
+      grid-template-columns: repeat(8, 43px);
+      grid-gap: 5px;
+      justify-content: center;
+      margin-bottom: 16px;
+    }
+
+    .box {
+      width: 43px;
+      height: 43px;
+      background-color: #FFD900; /* Yellow */
+      border-radius: 8px;
+      box-shadow: 0 0 5px 2px #e6d500;
+      cursor: pointer;
+      transition: background-color 0.3s, box-shadow 0.3s;
+    }
+
+    .box.safe {
+      background-color: #00cc44; /* Green */
+      box-shadow: 0 0 7px 3px #33dd66;
+      cursor: default;
+    }
+
+    .box.dead {
+      background-color: #cc0000; /* Red */
+      box-shadow: 0 0 8px 4px #ff3333;
+      cursor: default;
+    }
+
+    /* Overlay fog red */
+    #redOverlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(204, 0, 0, 0.55);
+      backdrop-filter: blur(2px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+      z-index: 999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      user-select: none;
+      padding: 20px;
+      box-sizing: border-box;
+      min-height: 100vh;
+      gap: 20px;
+    }
+
+    #redOverlay.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    #deadMessage {
+      font-family: 'Creepster', cursive;
+      color: #ff1a1a;
+      font-size: 72px;
+      text-shadow:
+        4px 4px 0 #660000,
+        -4px -4px 0 #660000,
+        4px -4px 0 #660000,
+        -4px 4px 0 #660000,
+        0 0 20px #ff3333;
+      user-select: none;
+      text-align: center;
+      padding: 0 20px;
+      margin: 0;
+    }
+
+    #controls {
+      display: flex;
+      gap: 20px;
+    }
+
+    button, a.button-link {
+      padding: 10px 24px;
+      background-color: #7a0000;
+      border: none;
+      color: #fff7d6;
+      font-size: 16px;
+      border-radius: 12px;
+      cursor: pointer;
+      text-decoration: none;
+      box-shadow: 0 0 6px #ff4c4c;
+      user-select: none;
+      transition: background-color 0.3s ease;
+      font-weight: 700;
+    }
+
+    button:hover, a.button-link:hover {
+      background-color: #550000;
+    }
+
+    /* Controls below grid */
+    #controlsOutside {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+      margin-top: 10px;
+      z-index: 1;
+      position: relative;
+    }
+
+    /* How to play icon bottom-right */
+    #howToPlay {
+      position: fixed;
+      bottom: 25px;
+      right: 25px;
+      width: 40px;
+      height: 40px;
+      background-color: #7a0000;
+      color: #fff7d6;
+      font-weight: 700;
+      font-size: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 0 6px #ff4c4c;
+      user-select: none;
+      transition: background-color 0.25s ease;
+      z-index: 1000;
+    }
+
+    #howToPlay:hover {
+      background-color: #550000;
+    }
+  </style>
+</head>
+<body>
+
+  <img id="gameTitle" src="c:\Users\win10\Desktop\BytePlay\IMAGES\Screenshot_2025-08-19-15-50-29-561_com.lemon.lvoverseas-edit.jpg" alt="Dead Red" />
+
+  <div id="score">Level: 1</div>
+
+  <div id="gameContainer">
+    <div id="grid" aria-label="Dead Red game grid" role="grid" tabindex="0"></div>
+  </div>
+
+  <!-- Controls outside game for normal gameplay -->
+  <div id="controlsOutside">
+    <button id="resetBtnOutside">Restart Game</button>
+    <a href="byteplay.html" class="button-link" role="button" tabindex="0">Return to Home</a>
+  </div>
+
+  <!-- Red overlay + message + controls inside -->
+  <div id="redOverlay" aria-live="assertive" role="alert" aria-hidden="true">
+    <div id="deadMessage">YOU ARE DEAD</div>
+    <div id="controls">
+      <button id="resetBtn">Restart Game</button>
+      <a href="byteplay.html" class="button-link" role="button" tabindex="0">Return to Home</a>
+    </div>
+  </div>
+
+  <div id="howToPlay" title="How to Play" aria-label="How to Play">?</div>
+
+  <script>
+    const grid = document.getElementById('grid');
+    const scoreDisplay = document.getElementById('score');
+
+    const resetBtn = document.getElementById('resetBtn');
+    const resetBtnOutside = document.getElementById('resetBtnOutside');
+    const howToPlay = document.getElementById('howToPlay');
+    const redOverlay = document.getElementById('redOverlay');
+
+    const gridSize = 8;
+    const totalBoxes = gridSize * gridSize;
+    const maxRedBoxes = 10;
+
+    let level = 1;
+    let redBoxesCount = 1;
+    let safeBoxesLeft = totalBoxes - redBoxesCount;
+    let gameOver = false;
+
+    let redPositions = new Set();
+
+    function initGame() {
+      level = 1;
+      redBoxesCount = 1;
+      safeBoxesLeft = totalBoxes - redBoxesCount;
+      gameOver = false;
+      redOverlay.classList.remove('active');
+      redOverlay.setAttribute('aria-hidden', 'true');
+      updateScore();
+      redPositions.clear();
+      generateGrid();
+    }
+
+    function generateGrid() {
+      grid.innerHTML = '';
+      redPositions.clear();
+
+      while (redPositions.size < redBoxesCount) {
+        const pos = Math.floor(Math.random() * totalBoxes);
+        redPositions.add(pos);
+      }
+
+      for (let i = 0; i < totalBoxes; i++) {
+        const box = document.createElement('div');
+        box.classList.add('box');
+        box.setAttribute('role', 'button');
+        box.setAttribute('tabindex', '0');
+        box.dataset.index = i;
+        box.dataset.state = 'hidden';
+
+        box.addEventListener('click', onBoxClick);
+        box.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            onBoxClick.call(box, e);
+          }
+        });
+
+        grid.appendChild(box);
+      }
+    }
+
+    function onBoxClick(e) {
+      if (gameOver) return;
+
+      const box = this;
+      if(box.dataset.state !== 'hidden') {
+        return;
+      }
+
+      const index = parseInt(box.dataset.index);
+      const isRed = redPositions.has(index);
+
+      if (isRed) {
+        box.dataset.state = 'dead';
+        box.classList.add('dead');
+        gameOver = true;
+        redOverlay.classList.add('active');
+        redOverlay.setAttribute('aria-hidden', 'false');
+      } else {
+        box.dataset.state = 'safe';
+        box.classList.add('safe');
+        safeBoxesLeft--;
+        updateScore();
+
+        if (safeBoxesLeft === 0) {
+          level++;
+          if (level > maxRedBoxes) {
+            alert('🎉 Congratulations! You won the game by clearing all levels!');
+            initGame();
+            return;
+          }
+          redBoxesCount = level;
+          safeBoxesLeft = totalBoxes - redBoxesCount;
+          alert(`🔥 Level ${level - 1} cleared! Get ready for Level ${level}!`);
+          generateGrid();
+        }
+      }
+    }
+
+    function updateScore() {
+      scoreDisplay.textContent = `Level: ${level}`;
+    }
+
+    // Restart buttons both do same thing
+    resetBtn.addEventListener('click', () => {
+      initGame();
+    });
+    resetBtnOutside.addEventListener('click', () => {
+      initGame();
+    });
+
+    howToPlay.addEventListener('click', () => {
+      alert(`How to Play Dead Red:
+
+- You start with a grid of yellow boxes.
+- Click any box to reveal if it's safe (green) or deadly (red).
+- Avoid clicking red boxes or you lose.
+- Clear all safe boxes to advance levels.
+- Each level adds one more red box, increasing the challenge.
+- Clear all 10 levels to win!
+
+Good luck!`);
+    });
+
+    initGame();
+  </script>
+
+</body>
+</html>

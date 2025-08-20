@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>TYPING CHALLENGE</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap');
+
+  /* Reset */
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0;
+    background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #0b1a40;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100vh;
+    padding: 20px;
+    overflow: hidden;
+    user-select: none;
+  }
+  h1 {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: 4rem;
+    color: #1a237e;
+    margin-bottom: 18px;
+    text-transform: uppercase;
+    letter-spacing: 0.25em;
+    text-shadow: 1px 1px 4px rgba(26, 35, 126, 0.35);
+    user-select: none;
+  }
+  #gameBox {
+    background: white;
+    max-width: 900px;
+    width: 95vw;
+    border-radius: 20px;
+    box-shadow: 0 12px 35px rgba(26, 35, 126, 0.25);
+    padding: 32px 44px 56px;
+    box-sizing: border-box;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    cursor: text;
+  }
+  #textDisplay {
+    font-size: 1.75rem;
+    line-height: 1.75;
+    letter-spacing: 0.04em;
+    overflow-x: hidden;
+    white-space: nowrap;
+    border-bottom: 3.5px solid #c5cae9;
+    padding: 14px 14px 16px;
+    margin-bottom: 30px;
+    font-family: 'Courier New', Courier, monospace;
+    position: relative;
+    user-select: none;
+    background: #f5f7ff;
+    border-radius: 10px;
+    box-shadow: inset 0 0 10px #a0a8d7aa;
+  }
+  #textDisplay span {
+    color: #bbb;
+    transition: color 0.3s ease;
+  }
+  #textDisplay span.typed {
+    color: #111;
+    font-weight: 600;
+  }
+  #textDisplay span.incorrect {
+    color: #d32f2f;
+    text-decoration: underline wavy red;
+  }
+  #textDisplay span.caret {
+    border-left: 3px solid #1a237e;
+    animation: blink 1s steps(2, start) infinite;
+  }
+  @keyframes blink {
+    0%, 50% { border-color: #1a237e; }
+    50.1%, 100% { border-color: transparent; }
+  }
+  #inputOverlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    opacity: 0;
+    pointer-events: auto;
+    border: none;
+    font-size: 1.75rem;
+    font-family: monospace;
+    outline: none;
+    caret-color: transparent;
+    user-select: none;
+  }
+  #info {
+    font-size: 1.2rem;
+    height: 30px;
+    color: #1a237e;
+    margin-bottom: 22px;
+    min-height: 32px;
+    font-weight: 700;
+    user-select: none;
+    text-align: center;
+  }
+  #timerBarContainer {
+    background: #c5cae9;
+    border-radius: 18px;
+    height: 24px;
+    width: 100%;
+    margin-bottom: 30px;
+    box-shadow: inset 0 3px 7px rgba(0,0,0,0.12);
+  }
+  #timerBar {
+    background: #1a237e;
+    height: 100%;
+    width: 100%;
+    border-radius: 18px;
+    transition: width 0.25s ease;
+    box-shadow: 0 0 14px #3949abcc;
+  }
+  #stats {
+    font-size: 1.2rem;
+    margin-bottom: 26px;
+    color: #3f51b5;
+    font-weight: 700;
+    user-select: none;
+    text-align: center;
+  }
+  #buttonsRow {
+    display: flex;
+    justify-content: center;
+    gap: 18px;
+    pointer-events: auto;
+  }
+  #restartBtn, #backBtn {
+    padding: 15px 38px;
+    border: none;
+    border-radius: 14px;
+    font-weight: 700;
+    font-size: 1.2rem;
+    cursor: pointer;
+    user-select: none;
+    box-shadow: 0 7px 18px rgba(26, 35, 126, 0.4);
+    transition: background-color 0.35s ease, box-shadow 0.35s ease;
+    flex-shrink: 0;
+    min-width: 140px;
+  }
+  #restartBtn {
+    background-color: #3949ab;
+    color: white;
+  }
+  #restartBtn:hover, #restartBtn:focus {
+    background-color: #303f9f;
+    box-shadow: 0 10px 28px #3949abdd;
+    outline: none;
+  }
+  #backBtn {
+    background-color: #e0e0e0;
+    color: #1a237e;
+  }
+  #backBtn:hover, #backBtn:focus {
+    background-color: #bdbdbd;
+    box-shadow: 0 10px 28px #3949ab88;
+    outline: none;
+  }
+  /* Make sure buttons are above input overlay */
+  #restartBtn, #backBtn {
+    position: relative;
+    z-index: 10;
+  }
+  /* Responsive tweaks */
+  @media (max-width: 600px) {
+    h1 {
+      font-size: 3rem;
+      letter-spacing: 0.15em;
+    }
+    #textDisplay {
+      font-size: 1.4rem;
+    }
+    #restartBtn, #backBtn {
+      padding: 12px 28px;
+      font-size: 1.05rem;
+      min-width: 110px;
+    }
+  }
+</style>
+</head>
+<body>
+
+  <h1>TYPING CHALLENGE</h1>
+
+  <div id="gameBox" aria-live="polite" aria-label="Typing game interface" tabindex="0">
+    <div id="textDisplay" aria-label="Text to type"></div>
+    <input type="text" id="inputOverlay" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-hidden="true" />
+    <div id="info" role="alert" aria-live="assertive"></div>
+    <div id="timerBarContainer" aria-label="Time remaining">
+      <div id="timerBar"></div>
+    </div>
+    <div id="stats" aria-live="polite"></div>
+    <div id="buttonsRow">
+      <button id="restartBtn" aria-label="Restart game">Restart</button>
+      <button id="backBtn" aria-label="Back to BytePlay homepage">Back to Home</button>
+    </div>
+  </div>
+
+<script>
+  // Paragraph text (harder version with 400+ words)
+  const textToType = `In the heart of the bustling city, where the cacophony of daily life melds with the whispers of history, the architecture stands as a testament to human ingenuity and resilience. Ancient edifices with ornate facades intertwine seamlessly with the sleek silhouettes of modern skyscrapers, creating a harmonious juxtaposition of epochs. This cityscape is not merely a collection of buildings but a vibrant tapestry woven with stories of triumph, tragedy, and timeless dreams.
+
+  As sunlight filters through narrow alleyways, casting elongated shadows on cobblestone streets, one cannot help but marvel at the countless footsteps that have tread this ground. Scholars, artisans, merchants, and wanderers alike have all contributed to the city’s rich cultural mosaic. Each corner holds a secret, every archway an echo of the past, inviting inquisitive minds to explore deeper.
+
+  Yet, beyond the physical marvels lies an intangible spirit — the collective heartbeat of its inhabitants. It is in the laughter spilling from lively cafes, the murmurs of passionate debates in hidden libraries, and the quiet determination etched on the faces of dreamers chasing ambitions against all odds. The city pulses with life, embodying the eternal dance between change and continuity.
+
+  In this ever-evolving urban symphony, technology and tradition engage in a delicate balance. Cutting-edge innovations coexist with time-honored customs, fostering a dynamic environment where creativity thrives. The challenges of sustainability and rapid urbanization are met with inventive solutions, reflecting the community’s unwavering commitment to progress without forgetting its roots.
+
+  To navigate this labyrinth of wonders is to embark on a journey through time and space, where every step uncovers new facets of human endeavor. It is an invitation to witness the relentless pursuit of excellence, the resilience in the face of adversity, and the unyielding hope that fuels the aspirations of generations yet to come.
+
+  Embrace the challenge to master this intricate narrative, for in doing so, you not only sharpen your skills but also become part of a living story that transcends mere words. Let each keystroke be a tribute to the enduring legacy of this magnificent metropolis and a testament to the boundless potential within us all.`;
+
+  const textDisplay = document.getElementById('textDisplay');
+  const inputOverlay = document.getElementById('inputOverlay');
+  const info = document.getElementById('info');
+  const timerBar = document.getElementById('timerBar');
+  const stats = document.getElementById('stats');
+  const restartBtn = document.getElementById('restartBtn');
+  const backBtn = document.getElementById('backBtn');
+  const gameBox = document.getElementById('gameBox');
+
+  let letters = [];
+  let currentIndex = 0;
+  let timer = 60;
+  let maxTimer = 60;
+  let drainSpeed = 0.015;
+  let wordsTyped = 0;
+  let timerInterval = null;
+  let lastInputTime = 0;
+
+  function setupText() {
+    textDisplay.innerHTML = '';
+    letters = [];
+    for(let char of textToType){
+      const span = document.createElement('span');
+      span.textContent = char;
+      span.classList.add('untyped');
+      textDisplay.appendChild(span);
+      letters.push(span);
+    }
+    currentIndex = 0;
+    updateLetterStyles();
+  }
+
+  function updateLetterStyles() {
+    letters.forEach((letter, i) => {
+      letter.classList.remove('typed', 'incorrect', 'caret');
+      if(i < currentIndex){
+        letter.classList.add('typed');
+      }
+    });
+    if(currentIndex < letters.length){
+      letters[currentIndex].classList.add('caret');
+      // Scroll textDisplay horizontally so the caret stays centered
+      const caretSpan = letters[currentIndex];
+      const boxRect = textDisplay.getBoundingClientRect();
+      const caretRect = caretSpan.getBoundingClientRect();
+      const scrollLeft = textDisplay.scrollLeft;
+      const offset = caretRect.left - boxRect.left;
+      const centerOffset = (boxRect.width / 2) - (caretRect.width / 2);
+      textDisplay.scrollLeft = scrollLeft + offset - centerOffset;
+    }
+  }
+
+  function updateTimerBar() {
+    timerBar.style.width = `${(timer / maxTimer) * 100}%`;
+  }
+
+  function updateStats() {
+    stats.textContent = `Words typed: ${wordsTyped} | Time left: ${timer.toFixed(1)}s`;
+  }
+
+  function playBeep(freq=440, duration=100, volume=0.15) {
+    try {
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const oscillator = audioCtx.createOscillator();
+      const gainNode = audioCtx.createGain();
+
+      oscillator.type = 'sine';
+      oscillator.frequency.setValueAtTime(freq, audioCtx.currentTime);
+      gainNode.gain.setValueAtTime(volume, audioCtx.currentTime);
+
+      oscillator.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+
+      oscillator.start();
+      oscillator.stop(audioCtx.currentTime + duration / 1000);
+      oscillator.onended = () => audioCtx.close();
+    } catch (e) {}
+  }
+
+  inputOverlay.addEventListener('keydown', e => {
+    e.preventDefault();
+    if(timer <= 0) return;
+    const now = performance.now();
+    if(now - lastInputTime < 15) return;
+    lastInputTime = now;
+
+    if(currentIndex >= letters.length){
+      info.textContent = "🎉 You finished the text! Press Restart to play again.";
+      return;
+    }
+
+    const expected = letters[currentIndex].textContent;
+    const typed = e.key;
+
+    if(typed === 'Backspace'){
+      if(currentIndex > 0){
+        currentIndex--;
+        letters[currentIndex].classList.remove('incorrect');
+        updateLetterStyles();
+        info.textContent = "Corrected one letter. +4 sec bonus";
+        timer += 4;
+        if(timer > maxTimer) timer = maxTimer;
+        updateTimerBar();
+        updateStats();
+        playBeep(330, 60, 0.07);
+      }
+      return;
+    }
+
+    if(typed.length === 1){
+      if(typed === expected){
+        letters[currentIndex].classList.remove('incorrect');
+        currentIndex++;
+
+        if([' ', '.', ',', '!', '?', '\n'].includes(expected)){
+          wordsTyped++;
+          timer += 7; // bonus seconds on word completion
+          if(timer > maxTimer) timer = maxTimer;
+
+          if(wordsTyped % 10 === 0){
+            drainSpeed += 0.008; // increase drain speed every 10 words to make harder faster
+            info.textContent = "Difficulty increased! Timer drains faster now.";
+          } else {
+            info.textContent = "Good! +7 sec for word completed.";
+          }
+        } else {
+          info.textContent = "Good!";
+        }
+
+        updateLetterStyles();
+        updateTimerBar();
+        updateStats();
+        playBeep(440, 60, 0.15);
+      } else {
+        letters[currentIndex].classList.add('incorrect');
+        info.textContent = `Wrong! Expected "${expected}", got "${typed}". -10 sec penalty!`;
+        timer -= 10;
+        if(timer < 0) timer = 0;
+        updateTimerBar();
+        updateStats();
+        playBeep(160, 80, 0.25);
+      }
+    }
+  });
+
+  function startTimer() {
+    if(timerInterval) clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+      if(timer <= 0){
+        clearInterval(timerInterval);
+        info.textContent = "⏰ Time's up! Game over. Press Restart to try again.";
+        inputOverlay.disabled = true;
+        return;
+      }
+      timer -= drainSpeed;
+      if(timer < 0) timer = 0;
+      updateTimerBar();
+      updateStats();
+    }, 20);
+  }
+
+  restartBtn.addEventListener('click', () => {
+    timer = 60;
+    maxTimer = 60;
+    drainSpeed = 0.015;
+    wordsTyped = 0;
+    inputOverlay.disabled = false;
+    info.textContent = '';
+    setupText();
+    updateTimerBar();
+    updateStats();
+    inputOverlay.value = '';
+    inputOverlay.focus();
+    startTimer();
+  });
+
+  backBtn.addEventListener('click', () => {
+    window.location.href = 'byteplay.html'; // Link to your byteplay homepage
+  });
+
+  gameBox.addEventListener('click', () => {
+    inputOverlay.focus();
+  });
+
+  window.onload = () => {
+    setupText();
+    updateTimerBar();
+    updateStats();
+    inputOverlay.value = '';
+    inputOverlay.focus();
+    startTimer();
+  };
+</script>
+
+</body>
+</html>

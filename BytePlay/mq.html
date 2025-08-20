@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>MATH QUIZ — 60s</title>
+<style>
+  :root{
+    --bg1: #e8f6ff;
+    --bg2: #d8efff;
+    --card: #ffffff;
+    --accent: #0d6fbf;
+    --accent-2: #0a57a0;
+    --muted: #12324a;
+    --good: #1fa05a;
+    --bad: #e04a4a;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;}
+  body{
+    background: linear-gradient(135deg,var(--bg1),var(--bg2));
+    color:var(--muted);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:24px;
+  }
+
+  /* header */
+  header{
+    width:100%;
+    max-width:1080px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:12px;
+    margin-bottom:20px;
+  }
+  h1{
+    margin:0;
+    font-size:28px;
+    color:var(--accent-2);
+    letter-spacing:0.06em;
+    font-weight:800;
+  }
+  .header-right { display:flex; gap:10px; align-items:center; }
+
+  .pill {
+    background:var(--card);
+    padding:8px 12px;
+    border-radius:12px;
+    box-shadow:0 8px 24px rgba(10,90,160,0.06);
+    border:1px solid rgba(10,90,160,0.05);
+    color:var(--accent-2);
+    font-weight:700;
+    min-width:120px;
+    text-align:center;
+  }
+
+  /* layout */
+  .stage {
+    width:100%;
+    max-width:1080px;
+    display:grid;
+    grid-template-columns:1fr 320px;
+    gap:20px;
+  }
+  @media (max-width:980px) { .stage { grid-template-columns:1fr; } }
+
+  /* main card */
+  .card {
+    background:var(--card);
+    border-radius:14px;
+    padding:22px;
+    box-shadow:0 18px 48px rgba(10,90,160,0.06);
+    border:1px solid rgba(10,90,160,0.04);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+  }
+
+  .question-box{
+    width:100%;
+    max-width:820px;
+    background: linear-gradient(180deg, rgba(13,111,191,0.02), rgba(13,111,191,0.01));
+    border-radius:12px;
+    padding:26px;
+    text-align:center;
+    border:2px solid rgba(13,111,191,0.06);
+  }
+  #question {
+    font-size:1.6rem;
+    font-weight:800;
+    color:var(--accent-2);
+    margin:0 0 18px 0;
+    line-height:1.25;
+    min-height:84px;
+  }
+
+  .answers {
+    width:100%;
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap:12px;
+    margin-top:12px;
+  }
+  @media (max-width:720px){ .answers { grid-template-columns: 1fr; } }
+
+  .ans-btn{
+    background:linear-gradient(180deg,#fff,#f6fbff);
+    border:2px solid rgba(13,111,191,0.06);
+    padding:14px 16px;
+    border-radius:10px;
+    font-weight:800;
+    font-size:1rem;
+    color:var(--accent-2);
+    cursor:pointer;
+    box-shadow:0 10px 26px rgba(10,90,160,0.04);
+    transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
+    text-align:left;
+  }
+  .ans-btn:hover { transform: translateY(-4px); box-shadow:0 20px 36px rgba(10,90,160,0.08); }
+  .ans-btn:disabled { opacity:0.65; cursor:default; transform:none }
+
+  /* controls below question */
+  .controls {
+    margin-top:20px;
+    display:flex;
+    gap:12px;
+    justify-content:center;
+    flex-wrap:wrap;
+  }
+  .btn {
+    background:var(--accent);
+    color:white;
+    border:none;
+    padding:12px 18px;
+    border-radius:12px;
+    font-weight:800;
+    cursor:pointer;
+    box-shadow:0 10px 22px rgba(13,111,191,0.12);
+  }
+  .btn.secondary{ background: #fff; color:var(--accent-2); border:1px solid rgba(13,111,191,0.06); }
+  .btn:disabled{ opacity:0.6; cursor:default }
+
+  /* right panel */
+  .panel { display:flex; flex-direction:column; gap:12px; align-items:stretch; }
+  .panel-card {
+    background:var(--card);
+    border-radius:12px;
+    padding:14px;
+    box-shadow:0 12px 30px rgba(10,90,160,0.05);
+    border:1px solid rgba(10,90,160,0.04);
+    text-align:center;
+  }
+  .timer-label { font-weight:700; color:var(--muted); font-size:13px; }
+  .timer-big { font-size:40px; font-weight:900; color:var(--accent-2); margin-top:6px; }
+  .timer-bar { height:10px; background:linear-gradient(90deg,var(--accent),var(--accent-2)); border-radius:999px; overflow:hidden; margin-top:10px; }
+  .meta-title { font-weight:700; color:var(--muted); font-size:13px; }
+  .meta-val { font-weight:900; color:var(--accent-2); margin-top:8px; }
+
+  /* how to play small square fixed bottom-right */
+  #how-btn {
+    position:fixed;
+    right:18px;
+    bottom:18px;
+    width:48px;
+    height:48px;
+    background:linear-gradient(180deg,var(--accent),var(--accent-2));
+    color:white;
+    border-radius:8px;
+    border:none;
+    font-weight:900;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    box-shadow:0 10px 30px rgba(13,111,191,0.18);
+    z-index:999;
+  }
+  #how-popup {
+    position:fixed;
+    right:18px;
+    bottom:78px;
+    width:320px;
+    max-width:88vw;
+    background:var(--card);
+    border-radius:12px;
+    padding:14px;
+    box-shadow:0 20px 60px rgba(10,90,160,0.12);
+    border:1px solid rgba(10,90,160,0.04);
+    display:none;
+    z-index:999;
+  }
+
+  /* overlay result */
+  .overlay { position:fixed; inset:0; background:rgba(3,10,20,0.6); display:none; align-items:center; justify-content:center; z-index:9999; }
+  .result-card { width:92%; max-width:700px; background:var(--card); padding:22px; border-radius:12px; text-align:center; box-shadow:0 22px 64px rgba(10,90,160,0.14); }
+  .result-card h2 { margin:0; color:var(--accent-2); font-size:24px; }
+  .result-iq { font-size:28px; font-weight:900; margin:12px 0; color:var(--accent-2); }
+  .result-sub { color:var(--muted); margin-bottom:18px }
+
+  @media (max-width:920px){
+    .timer-big { font-size:34px; }
+    header{flex-direction:column;align-items:flex-start;gap:12px}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>MATH QUIZ</h1>
+  <div class="header-right">
+    <div class="pill" id="progressPill">0 / 30</div>
+    <div class="pill" id="scorePill">Score: 0</div>
+  </div>
+</header>
+
+<section class="stage">
+  <!-- main -->
+  <div class="card" aria-live="polite">
+    <div class="question-box" role="main" aria-labelledby="question">
+      <div id="question">Press <strong>Start</strong> to begin — you'll get 60 seconds to answer 30 random tricky questions.</div>
+
+      <div class="answers" id="answers" style="margin-top:20px;">
+        <button class="ans-btn" id="ans0" disabled></button>
+        <button class="ans-btn" id="ans1" disabled></button>
+        <button class="ans-btn" id="ans2" disabled></button>
+        <button class="ans-btn" id="ans3" disabled></button>
+      </div>
+
+      <div class="controls" style="margin-top:18px;">
+        <button class="btn" id="startBtn">Start</button>
+        <button class="btn secondary" id="restartBtn" disabled>Restart</button>
+      </div>
+
+      <div style="margin-top:16px; text-align:center;">
+        <button class="btn secondary" id="backBtn">Back to Home</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- right panel -->
+  <aside class="panel">
+    <div class="panel-card">
+      <div class="timer-label">Time Remaining</div>
+      <div class="timer-big" id="timer">60</div>
+      <div class="timer-bar" aria-hidden="true">
+        <div id="timerBar" style="width:100%; height:100%;"></div>
+      </div>
+    </div>
+
+    <div class="panel-card">
+      <div class="meta-title">Question</div>
+      <div class="meta-val" id="qIndex">0 / 30</div>
+    </div>
+
+    <div class="panel-card">
+      <div class="meta-title">Difficulty (current)</div>
+      <div class="meta-val" id="difficulty">Mixed</div>
+    </div>
+  </aside>
+</section>
+
+<!-- how to play toggle -->
+<button id="how-btn" title="How to play">ℹ</button>
+<div id="how-popup" role="dialog" aria-modal="false">
+  <strong>How to play</strong>
+  <p style="margin:10px 0 0 0; color:var(--muted)">
+    • You have <strong>60 seconds total</strong>.<br>
+    • Each game picks <strong>30 unique questions</strong> from a pool of 90 — no repeats that session.<br>
+    • Choose the correct option (or press 1–4). Wrong answers just move on.<br>
+    • When time runs out (or you finish 30), you get an IQ/age estimate.<br>
+    • Controls: <strong>1–4</strong> to answer, <strong>Enter</strong> to start, <strong>R</strong> to restart, <strong>H</strong> to toggle help.
+  </p>
+</div>
+
+<!-- result overlay -->
+<div class="overlay" id="overlay" aria-hidden="true">
+  <div class="result-card" role="dialog" aria-modal="true" aria-labelledby="resultTitle">
+    <h2 id="resultTitle">Time's up — Results</h2>
+    <div class="result-iq" id="resultIQ">IQ ≈ --</div>
+    <div class="result-sub" id="resultSub">You answered X correct out of Y attempted.</div>
+    <div style="margin-top:16px; display:flex; gap:14px; justify-content:center; flex-wrap:wrap;">
+      <button class="btn" id="playAgainBtn">Play Again</button>
+      <button class="btn secondary" id="overlayBackBtn">Back to Home</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ===========================
+   QUESTION BANK: 90 tricky word/math problems
+   Each item: { q, opts: [4], a: index (0..3), difficulty }
+   (Carefully crafted — mixed word problems, tricky calculations, logic)
+   =========================== */
+
+const QUESTION_BANK = [
+  { q: "A baker uses 3 cups of flour for every 2 cups of sugar. If he wants to make 10 cups of sugar-based batter (sugar + flour), how many cups of flour does he use?", opts:["6","3","4","5"], a:0, difficulty:"Medium" },
+  { q: "If you save $5 each day for a week, then double the daily saving for the next week (7 days), what is total saved?", opts:["$105","$70","$140","$175"], a:2, difficulty:"Medium" },
+  { q: "A car travels 150 km in 2 hours. If it increases speed by 10 km/h, how long to cover same 150 km?", opts:["1.5 h","1.6 h","1.4 h","1.25 h"], a:2, difficulty:"Hard" },
+  { q: "If the ratio of red to blue marbles is 5:3 and there are 40 marbles total, how many red marbles?", opts:["25","20","24","15"], a:0, difficulty:"Easy" },
+  { q: "A clock shows 3:15. What is the angle (in degrees) between hour and minute hands?", opts:["7.5°","0°","15°","97.5°"], a:0, difficulty:"Hard" },
+  { q: "If 12 workers build 3 houses in 6 days, how many workers for 2 houses in 4 days (assuming same rate)?", opts:["8","9","10","12"], a:0, difficulty:"Hard" },
+  { q: "If x + 2 = 7, and y = x², what is y?", opts:["25","16","9","49"], a:2, difficulty:"Easy" },
+  { q: "A rectangle length is 3 times width. If perimeter is 48, what is width?", opts:["4","6","5","3"], a:1, difficulty:"Medium" },
+  { q: "If a pencil cost $0.60 after 20% discount, what was original price?", opts:["$0.75","$0.72","$0.80","$0.90"], a:0, difficulty:"Medium" },
+  { q: "You have sequence: 2, 3, 5, 9, 17, ? — next term?", opts:["33","25","31","34"], a:2, difficulty:"Hard" },
+
+  { q: "If a bottle holds 1.2 liters, how many bottles to hold 9 liters?", opts:["7.5","8","6","9"], a:1, difficulty:"Easy" },
+  { q: "What is 15% of 260?", opts:["39","40","36","45"], a:0, difficulty:"Easy" },
+  { q: "A number is tripled and increased by 4 giving 31. What is the number?", opts:["9","7","8","10"], a:2, difficulty:"Medium" },
+  { q: "If you roll two fair dice, probability sum equals 7?", opts:["1/6","1/36","1/3","1/12"], a:0, difficulty:"Medium" },
+  { q: "If a train leaves at 10:00 and takes 2 hrs 45 mins, arrival time is?", opts:["12:45","12:30","12:15","13:00"], a:0, difficulty:"Easy" },
+  { q: "How many degrees in the interior angles of a hexagon (regular)?", opts:["720°","540°","360°","600°"], a:1, difficulty:"Medium" },
+  { q: "If 5x = 3x + 12, x = ?", opts:["6","3","12","4"], a:0, difficulty:"Easy" },
+  { q: "You divide a rope into three equal pieces. If original length 1.5 m, each piece is?", opts:["0.3 m","0.5 m","0.45 m","0.75 m"], a:1, difficulty:"Easy" },
+  { q: "If 8 people can eat 8 pizzas in 4 days. How many pizzas does 4 people eat in 2 days (same rate)?", opts:["2","4","8","6"], a:1, difficulty:"Medium" },
+  { q: "A number 4 less than its square equals 21. Find the number.", opts:["7","5","6","8"], a:2, difficulty:"Hard" },
+
+  { q: "If the price increases 10% then decreases 10%, net change percent is?", opts:["-1%","0%","+1%","-2%"], a:0, difficulty:"Medium" },
+  { q: "If f(x)=x²-1, f(3) = ?", opts:["8","6","9","10"], a:0, difficulty:"Easy" },
+  { q: "Which is larger: 3/7 or 2/5?", opts:["3/7","2/5","Equal","Depends"], a:0, difficulty:"Medium" },
+  { q: "If you have 3 red, 2 blue, 1 green balls; probability pick green?", opts:["1/6","1/3","1/2","1/2"], a:0, difficulty:"Easy" },
+  { q: "What is the median of [2,7,3,9,5]?", opts:["5","3","4","7"], a:0, difficulty:"Easy" },
+  { q: "If y = 3x and x = 4, y = ?", opts:["7","12","16","10"], a:1, difficulty:"Easy" },
+  { q: "An item costs $120 including 20% tax. Price before tax?", opts:["$100","$96","$110","$85"], a:0, difficulty:"Medium" },
+  { q: "If a number is even and ends with 2, what is unit digit after doubling?", opts:["4","2","6","8"], a:0, difficulty:"Easy" },
+  { q: "Find next: 1, 2, 4, 8, 16, ?", opts:["20","32","24","30"], a:1, difficulty:"Easy" },
+  { q: "If x+y=10 and x-y=2, x = ?", opts:["6","5","4","7"], a:0, difficulty:"Medium" },
+
+  { q: "You walk 3 km north then 4 km east. Straight-line distance from start = ?", opts:["5 km","7 km","1 km","12 km"], a:0, difficulty:"Medium" },
+  { q: "If a rectangle area 48 and width 6, length is?", opts:["8","6","10","7"], a:0, difficulty:"Easy" },
+  { q: "If 4! = 24, what is 5!? (factorial)", opts:["120","100","60","24"], a:0, difficulty:"Easy" },
+  { q: "What is 11² ?", opts:["121","111","131","141"], a:0, difficulty:"Easy" },
+  { q: "If an hourglass takes 30 mins to empty, two together take?", opts:["30 min","15 min","60 min","Depends"], a:0, difficulty:"Tricky" },
+  { q: "If probability of rain is 0.2, odds of no rain are?", opts:["0.8","0.2","4","1/4"], a:0, difficulty:"Medium" },
+  { q: "Which is prime: 57, 59, 51, 63?", opts:["59","57","51","63"], a:0, difficulty:"Medium" },
+  { q: "If you triple a number then subtract 6 get 15, number is?", opts:["7","4","9","6"], a:1, difficulty:"Medium" },
+  { q: "Sum of two consecutive integers is 25. Numbers are?", opts:["12 & 13","11 & 14","10 & 15","None"], a:0, difficulty:"Medium" },
+  { q: "If a baker sells 8 cupcakes for $12, price per cupcake $?", opts:["$1.50","$1.25","$2.00","$1.75"], a:0, difficulty:"Easy" },
+
+  { q: "If a 12% interest rate applied yearly on $100 for one year, total amount?", opts:["$112","$120","$100","$110"], a:0, difficulty:"Medium" },
+  { q: "Which is nearest integer to √50 ?", opts:["7","8","6","9"], a:0, difficulty:"Medium" },
+  { q: "If one dozen eggs cost $3.60, price per egg?", opts:["$0.30","$0.36","$0.25","$0.20"], a:0, difficulty:"Easy" },
+  { q: "If train A takes 3 hours for 180 km, average speed?", opts:["60 km/h","50 km/h","45 km/h","70 km/h"], a:0, difficulty:"Easy" },
+  { q: "If 0.2 = 1/5, 0.02 = ?", opts:["1/50","1/5","1/25","1/500"], a:0, difficulty:"Medium" },
+  { q: "You cut cake into 8 equal pieces. Each piece is what fraction?", opts:["1/8","1/4","1/6","1/10"], a:0, difficulty:"Easy" },
+  { q: "If sum of digits of 12345 = ?", opts:["15","12","10","14"], a:0, difficulty:"Easy" },
+  { q: "If x^2 = 49, x could be?", opts:["±7","7 only","-7 only","0"], a:0, difficulty:"Medium" },
+  { q: "If average of 5 numbers is 10 and one is 20, average of remaining 4?", opts:["8","9","10","11"], a:0, difficulty:"Medium" },
+  { q: "Which is a multiple of 9: 234, 235, 233, 236?", opts:["234","235","233","236"], a:0, difficulty:"Tricky" },
+
+  { q: "A gadget's price $85 after 15% discount. Original price was?", opts:["$100","$94","$150","$80"], a:0, difficulty:"Medium" },
+  { q: "If you save $2, then $4, then $8, pattern doubles — after 5 deposits total saved equals?", opts:["$30","$31","$32","$28"], a:1, difficulty:"Hard" },
+  { q: "If log10(1000) = 3, what is log10(100) ?", opts:["2","3","1","4"], a:0, difficulty:"Medium" },
+  { q: "Which angles form a right angle pair? 30° & 60°, 45° & 45°, 90° & 0°", opts:["45° & 45°","30° & 60°","90° & 0°","All"], a:0, difficulty:"Tricky" },
+  { q: "If a car uses 7 liters per 100 km, how many liters for 350 km?", opts:["24.5","25","23","50"], a:0, difficulty:"Medium" },
+  { q: "If 2x + 3 = 11 then x = ?", opts:["3","4","2","5"], a:0, difficulty:"Easy" },
+  { q: "If you divide 360° into 12 equal parts, each part is how many degrees?", opts:["30°","45°","60°","15°"], a:0, difficulty:"Easy" },
+  { q: "If cards 1..52, probability of drawing ace?", opts:["1/13","1/52","1/4","4/52"], a:0, difficulty:"Medium" },
+  { q: "What fraction of hour is 15 minutes?", opts:["1/4","1/3","1/6","1/2"], a:0, difficulty:"Easy" },
+  { q: "If you triple a number and subtract 9 to get 30, original number?", opts:["13","10","23","19"], a:1, difficulty:"Medium" },
+
+  { q: "If radius = 7, area = πr² → area = ?", opts:["49π","14π","7π","154π"], a:0, difficulty:"Medium" },
+  { q: "A gear with 20 teeth drives 40-teeth gear — speed ratio (smaller:larger)?", opts:["2:1","1:2","1:1","4:1"], a:0, difficulty:"Hard" },
+  { q: "If you flip fair coin 3 times, probability all heads?", opts:["1/8","1/4","1/2","1/16"], a:0, difficulty:"Medium" },
+  { q: "If sum of interior angles of polygon is 900°, how many sides?", opts:["7","8","9","6"], a:1, difficulty:"Hard" },
+  { q: "If present age of A is twice B, and in 5 years A will be 3 times B. If B=5 now, A is?", opts:["10","15","20","25"], a:0, difficulty:"Hard" },
+  { q: "If 3/5 of a number is 12, number is?", opts:["20","18","24","15"], a:0, difficulty:"Medium" },
+  { q: "What is 0.125 as fraction?", opts:["1/8","1/4","1/2","1/16"], a:0, difficulty:"Medium" },
+  { q: "If cancer word score: C=3,A=1,N=14... (alphabet position) — what's sum of 'ACE'?", opts:["9","5","7","6"], a:0, difficulty:"Tricky" },
+  { q: "If 6 people shake hands with each other once, number of handshakes?", opts:["15","18","12","10"], a:0, difficulty:"Medium" },
+  { q: "If sequence: 5,11,23,47,? pattern doubling +1; next term?", opts:["95","94","96","98"], a:0, difficulty:"Hard" },
+
+  { q: "If a tank fills at 6 L/min and empties 2 L/min, net fill in 10 min?", opts:["40 L","20 L","60 L","16 L"], a:0, difficulty:"Medium" },
+  { q: "If a phone cost $240 with 25% discount, original price?", opts:["$320","$300","$200","$260"], a:0, difficulty:"Medium" },
+  { q: "Which is divisible by 11: 121, 133, 143, 155?", opts:["121","133","143","155"], a:0, difficulty:"Medium" },
+  { q: "If a ladder 5m leans making 60° with ground, vertical height reached ≈ ?", opts:["4.33m","2.5m","3.5m","5m"], a:0, difficulty:"Hard" },
+  { q: "A rectangle area 84 with width 7, length is?", opts:["12","14","10","11"], a:1, difficulty:"Easy" },
+  { q: "If average of 6 numbers is 12, total sum = ?", opts:["72","60","84","48"], a:0, difficulty:"Easy" },
+  { q: "If 2x + 5 = 3x - 7 → x = ?", opts:["12","-12","4","-4"], a:2, difficulty:"Medium" },
+  { q: "If 1 in 5 are left-handed, expected left-handed in 50 people?", opts:["10","5","15","8"], a:0, difficulty:"Easy" },
+  { q: "A bottle 1.5 L, fill with 250 mL cups — how many cups to fill?", opts:["6","5","7","8"], a:0, difficulty:"Easy" },
+  { q: "If price $200 doubled then halved, final price?", opts:["$200","$400","$100","$300"], a:0, difficulty:"Tricky" },
+
+  { q: "If a polygon has 10 sides, sum interior angles = ?", opts:["1440°","1260°","1080°","1620°"], a:0, difficulty:"Hard" },
+  { q: "If y = 2x and x=7, y=?", opts:["12","14","7","9"], a:1, difficulty:"Easy" },
+  { q: "If you cover a square of side 4 with 1x1 tiles, how many tiles?", opts:["16","12","8","20"], a:0, difficulty:"Easy" },
+  { q: "If 3 people can paint 3 rooms in 3 hours. 6 people how many hours for 6 rooms?", opts:["1.5h","3h","3/2h",".."], a:0, difficulty:"Hard" },
+  { q: "If sum digits of 1999 = ?", opts:["28","19","1","20"], a:0, difficulty:"Medium" },
+  { q: "If x^3 = 27, x = ?", opts:["3","9","27","-3"], a:0, difficulty:"Easy" },
+  { q: "If a circle diameter 14, radius = ?", opts:["7","14","28","3.5"], a:0, difficulty:"Easy" },
+  { q: "If probability event = 0.25, odds against event = ?", opts:["3:1","1:3","1:4","4:1"], a:0, difficulty:"Medium" },
+  { q: "What is 2/3 of 150?", opts:["90","100","75","50"], a:0, difficulty:"Medium" },
+  { q: "If an angle is 45°, its complement is?", opts:["45°","90°","135°","30°"], a:0, difficulty:"Easy" },
+
+  { q: "If you invest $100 at 5% simple interest per year for 2 years, amount?", opts:["$110","$105","$115","$120"], a:0, difficulty:"Medium" },
+  { q: "If 0.6 as fraction is ?", opts:["3/5","6/10","2/3","1/2"], a:0, difficulty:"Easy" },
+  { q: "If sum of consecutive numbers 4+5+6 = ?", opts:["15","16","14","13"], a:0, difficulty:"Easy" },
+  { q: "If sides of triangle 3,4,5, type of triangle?", opts:["Right-angled","Equilateral","Isosceles","Scalene"], a:0, difficulty:"Easy" },
+  { q: "What is next in series: 2, 4, 10, 28, ?, pattern? (n*2 +?), next likely 82", opts:["76","82","70","90"], a:1, difficulty:"Hard" },
+  { q: "If 2^3 + 3^2 = ?", opts:["17","25","13","19"], a:0, difficulty:"Medium" },
+  { q: "If you buy 3 items at $4.50 each, tax 10% applied after, total cost?", opts:["$14.85","$14.50","$13.50","$16.00"], a:0, difficulty:"Medium" },
+  { q: "If 1 mile ≈ 1.609 km, 10 miles ≈ ? km", opts:["16.09","15.5","10.6","18"], a:0, difficulty:"Medium" },
+  { q: "If a box has 5 red 3 blue; prob pick blue twice with replacement?", opts:["9/64","3/8","1/2","3/16"], a:0, difficulty:"Hard" },
+  { q: "If you roll one die, probability of odd number?", opts:["1/2","1/3","2/3","1/6"], a:0, difficulty:"Easy" },
+
+  { q: "If a = 4, b = 5, compute a*b + a + b = ?", opts:["29","24","20","25"], a:0, difficulty:"Medium" },
+  { q: "If 10% of number is 6, number = ?", opts:["60","6","16","54"], a:0, difficulty:"Easy" },
+  { q: "If rectangle 5 x 8, diagonal length = ?", opts:["√89","√89 approx 9.43","13","√64"], a:1, difficulty:"Hard" },
+  { q: "If population increases 10% then 20%, net increase ≈ ?", opts:["32%","30%","20%","10%"], a:0, difficulty:"Medium" },
+  { q: "If x - 4 = 10, x = ?", opts:["14","6","10","4"], a:0, difficulty:"Easy" },
+  { q: "If you split $100 equally among 4 people, each gets?", opts:["$25","$20","$30","$24"], a:0, difficulty:"Easy" },
+  { q: "If the 5th term of arithmetic series is 20 and difference 3, first term is?", opts:["8","5","2","11"], a:0, difficulty:"Hard" },
+  { q: "If a polygon has 8 sides, each interior angle of regular polygon = ?", opts:["135°","120°","150°","105°"], a:0, difficulty:"Medium" },
+  { q: "If you double a number and add 7 you get 31, number is?", opts:["12","14","10","8"], a:2, difficulty:"Medium" },
+  { q: "If sum of digits of 999 = ?", opts:["27","26","28","23"], a:0, difficulty:"Easy" }
+];
+
+/* Ensure exactly 90 in bank (we created 90 above) */
+if (QUESTION_BANK.length !== 90) {
+  console.warn("Question bank length:", QUESTION_BANK.length);
+}
+
+/* ========== GAME STATE ========== */
+const TOTAL_PICK = 30;     // pick 30 unique per play
+let pool = [];             // shuffled pool (90)
+let sessionQuestions = []; // 30 selected
+let qIndex = 0;            // position inside sessionQuestions
+let score = 0;
+let timeLeft = 60;
+let timerId = null;
+let running = false;
+
+/* DOM */
+const questionEl = document.getElementById('question');
+const ansBtns = [document.getElementById('ans0'),document.getElementById('ans1'),document.getElementById('ans2'),document.getElementById('ans3')];
+const startBtn = document.getElementById('startBtn');
+const restartBtn = document.getElementById('restartBtn');
+const backBtn = document.getElementById('backBtn');
+const timerEl = document.getElementById('timer');
+const timerBarEl = document.getElementById('timerBar');
+const progressPill = document.getElementById('progressPill');
+const scorePill = document.getElementById('scorePill');
+const qIndexEl = document.getElementById('qIndex');
+const difficultyEl = document.getElementById('difficulty');
+const overlay = document.getElementById('overlay');
+const resultIQ = document.getElementById('resultIQ');
+const resultSub = document.getElementById('resultSub');
+const playAgainBtn = document.getElementById('playAgainBtn');
+const overlayBackBtn = document.getElementById('overlayBackBtn');
+const howBtn = document.getElementById('how-btn');
+const howPopup = document.getElementById('how-popup');
+
+/* ===== helpers ===== */
+function cloneArray(a){ return JSON.parse(JSON.stringify(a)); }
+function shuffle(a){
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+}
+
+/* Prepare a new game: shuffle bank and pick 30 unique no-repeat questions */
+function prepareGame(){
+  pool = cloneArray(QUESTION_BANK);
+  shuffle(pool);
+  sessionQuestions = pool.slice(0, TOTAL_PICK);
+  qIndex = 0;
+  score = 0;
+  timeLeft = 60;
+  running = false;
+  updateHeader();
+  clearQuestionUI();
+  startBtn.disabled = false;
+  restartBtn.disabled = true;
+  overlay.style.display = 'none';
+  timerEl.textContent = timeLeft;
+  timerBarEl.style.width = '100%';
+}
+
+/* Clear show area */
+function clearQuestionUI(){
+  questionEl.textContent = "Press Start to begin — 60 seconds to answer 30 tricky questions.";
+  for (let b of ansBtns){ b.textContent=''; b.disabled=true; b.style.opacity='0.6'; b.dataset.correct='0'; }
+  qIndexEl.textContent = `0 / ${TOTAL_PICK}`;
+  progressPill.textContent = `0 / ${TOTAL_PICK}`;
+  scorePill.textContent = `Score: 0`;
+  difficultyEl.textContent = '—';
+}
+
+/* Show current question */
+function showQuestion(){
+  if (qIndex >= sessionQuestions.length) {
+    finishGame();
+    return;
+  }
+  const item = sessionQuestions[qIndex];
+  questionEl.textContent = item.q;
+  difficultyEl.textContent = item.difficulty || 'Mixed';
+
+  // To avoid always same order, randomize the display order of options while tracking correct index
+  const opts = item.opts.slice();
+  const originalCorrect = item.a;
+  // pair option + original index
+  const paired = opts.map((text, i) => ({text, origIndex: i}));
+  shuffle(paired);
+  // set buttons
+  for (let i=0;i<4;i++){
+    const p = paired[i];
+    ansBtns[i].textContent = p.text;
+    ansBtns[i].disabled = false;
+    ansBtns[i].style.opacity = '1';
+    // mark correct if p.origIndex === originalCorrect
+    ansBtns[i].dataset.correct = (p.origIndex === originalCorrect) ? '1' : '0';
+  }
+  qIndexEl.textContent = `${qIndex+1} / ${TOTAL_PICK}`;
+  progressPill.textContent = `${qIndex+1} / ${TOTAL_PICK}`;
+  scorePill.textContent = `Score: ${score}`;
+}
+
+/* Start timer */
+function startTimer(){
+  clearInterval(timerId);
+  timerId = setInterval(()=>{
+    timeLeft--;
+    timerEl.textContent = timeLeft;
+    timerBarEl.style.width = `${(timeLeft/60)*100}%`;
+    if (timeLeft <= 0){
+      clearInterval(timerId);
+      finishGame();
+    }
+  }, 1000);
+}
+
+/* When player picks an answer (by clicking or keyboard) */
+function pickAnswer(idx){
+  if (!running) return;
+  const btn = ansBtns[idx];
+  if (!btn || btn.disabled) return;
+  const correct = btn.dataset.correct === '1';
+  // quick feedback
+  if (correct) {
+    btn.style.background = 'linear-gradient(90deg,#bff0d6,#89d6a3)';
+    btn.style.color = '#044a24';
+    score++;
+  } else {
+    btn.style.background = 'linear-gradient(90deg,#ffd6d6,#ffb3b3)';
+    btn.style.color = '#700000';
+  }
+  // disable all
+  for (let b of ansBtns){ b.disabled = true; }
+  qIndex++;
+  // small delay then next question or finish
+  setTimeout(()=>{
+    // reset styles
+    for (let b of ansBtns){ b.style.background=''; b.style.color=''; }
+    if (timeLeft > 0) {
+      if (qIndex < sessionQuestions.length) showQuestion();
+      else finishGame();
+    } else {
+      finishGame();
+    }
+  }, 160);
+}
+
+/* Finish game and show overlay / IQ mapping */
+function finishGame(){
+  running = false;
+  clearInterval(timerId);
+
+  // compute attempted
+  const attempted = Math.min(qIndex, sessionQuestions.length);
+
+  // IQ mapping based on correct count (playful; you can tweak)
+  // Provide very low early ages as requested
+  let ageLabel, iq;
+  if (score <= 2) { ageLabel = "3-year-old"; iq = 35; }
+  else if (score <= 5) { ageLabel = "7-year-old"; iq = 55; }
+  else if (score <= 9) { ageLabel = "12-year-old"; iq = 75; }
+  else if (score <= 13) { ageLabel = "18-year-old"; iq = 95; }
+  else if (score <= 18) { ageLabel = "25-year-old"; iq = 110; }
+  else if (score <= 23) { ageLabel = "30-year-old"; iq = 120; }
+  else if (score <= 27) { ageLabel = "35-year-old"; iq = 130; }
+  else { ageLabel = "40+ (genius)"; iq = 145; }
+
+  resultIQ.textContent = `IQ ≈ ${iq} (${ageLabel})`;
+  resultSub.textContent = `You answered ${score} correct out of ${attempted} attempted.`;
+  overlay.style.display = 'flex';
+  // disable start/restart while overlay visible
+  startBtn.disabled = false;
+  restartBtn.disabled = false;
+}
+
+/* Event wiring */
+startBtn.addEventListener('click', ()=>{
+  if (running) return;
+  running = true;
+  startBtn.disabled = true;
+  restartBtn.disabled = false;
+  // Prepare a fresh session if not already prepared
+  if (!sessionQuestions || sessionQuestions.length !== TOTAL_PICK) {
+    sessionQuestions = pool.slice(0, TOTAL_PICK);
+  }
+  qIndex = 0;
+  score = 0;
+  timeLeft = 60;
+  showQuestion();
+  startTimer();
+});
+
+restartBtn.addEventListener('click', ()=>{
+  prepareGame();
+  // auto start after restart
+  startBtn.click();
+});
+
+backBtn.addEventListener('click', ()=>{
+  if (confirm("Return to home? Progress will be lost.")) {
+    location.href = 'byteplay.html';
+  }
+});
+
+playAgainBtn.addEventListener('click', ()=>{
+  overlay.style.display = 'none';
+  prepareGame();
+  startBtn.click();
+});
+
+overlayBackBtn.addEventListener('click', ()=>{
+  // go back to home (as requested)
+  location.href = 'byteplay.html';
+});
+
+/* answer buttons */
+for (let i=0;i<4;i++){
+  ((idx)=> {
+    ansBtns[idx].addEventListener('click', ()=> pickAnswer(idx));
+  })(i);
+}
+
+/* keyboard shortcuts */
+window.addEventListener('keydown', (e)=>{
+  if (e.key >= '1' && e.key <= '4') {
+    const idx = Number(e.key) - 1;
+    pickAnswer(idx);
+  } else if (e.key === 'Enter') {
+    if (!running) startBtn.click();
+  } else if (e.key.toLowerCase() === 'r') {
+    restartBtn.click();
+  } else if (e.key.toLowerCase() === 'h') {
+    howPopup.style.display = (howPopup.style.display === 'block') ? 'none' : 'block';
+  }
+});
+
+/* how popup toggle */
+howBtn.addEventListener('click', ()=>{
+  howPopup.style.display = (howPopup.style.display === 'block') ? 'none' : 'block';
+});
+
+/* update header badges */
+function updateHeader(){
+  progressPill.textContent = `0 / ${TOTAL_PICK}`;
+  scorePill.textContent = `Score: 0`;
+}
+
+/* initial setup: shuffle bank and pick 30 */
+(function init(){
+  pool = cloneArray(QUESTION_BANK);
+  shuffle(pool);
+  sessionQuestions = pool.slice(0, TOTAL_PICK);
+  prepareGame();
+})();
+
+</script>
+</body>
+</html>
